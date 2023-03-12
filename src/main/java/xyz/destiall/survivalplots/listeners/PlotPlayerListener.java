@@ -1,0 +1,137 @@
+package xyz.destiall.survivalplots.listeners;
+
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.minecart.ExplosiveMinecart;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
+import xyz.destiall.survivalplots.player.PlotPlayer;
+import xyz.destiall.survivalplots.player.PlotPlayerManager;
+import xyz.destiall.survivalplots.plot.PlotFlags;
+import xyz.destiall.survivalplots.plot.PlotManager;
+import xyz.destiall.survivalplots.plot.SurvivalPlot;
+
+import static xyz.destiall.survivalplots.commands.PlotCommand.color;
+
+public class PlotPlayerListener implements Listener {
+    private final SurvivalPlotsPlugin plugin;
+
+    public PlotPlayerListener(SurvivalPlotsPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        PlotManager pm = plugin.getPlotManager();
+        pm.getOwnedPlots(e.getPlayer()).forEach(SurvivalPlot::updateExpiry);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        PlotManager pm = plugin.getPlotManager();
+        pm.getOwnedPlots(e.getPlayer()).forEach(SurvivalPlot::updateExpiry);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent e) {
+        PlotManager pm = plugin.getPlotManager();
+        SurvivalPlot plot = pm.getPlotAt(e.getTo());
+        if (plot == null)
+            return;
+
+        PlotPlayerManager ppm = plugin.getPlotPlayerManager();
+        PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
+        if (player.isBanned(plot)) {
+            e.setCancelled(true);
+            BaseComponent[] component = TextComponent.fromLegacyText(color("&cBanned!"));
+            BaseComponent[] component2 = TextComponent.fromLegacyText(color("&cThis plot has banned you!"));
+            e.getPlayer().showTitle(component, component2, 5, 20, 5);
+            return;
+        }
+
+        if (plot.getOwner() != null && pm.getPlotAt(e.getFrom()) != plot) {
+            BaseComponent[] component = TextComponent.fromLegacyText(color("&6Plot Owner:"));
+            BaseComponent[] component2 = TextComponent.fromLegacyText(color("&6" + plot.getOwner().getName()));
+            e.getPlayer().showTitle(component, component2, 5, 20, 5);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent e) {
+        onPlayerMove(e);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+        PlotManager pm = plugin.getPlotManager();
+        SurvivalPlot plot = pm.getPlotAt(e.getRightClicked().getLocation());
+        if (plot == null)
+            return;
+
+        PlotPlayerManager ppm = plugin.getPlotPlayerManager();
+        PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
+        if (!player.canInteractEntity(plot)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
+        PlotManager pm = plugin.getPlotManager();
+
+        SurvivalPlot plot = pm.getPlotAt(e.getEntity().getLocation());
+        if (plot == null)
+            return;
+
+        if (e.getEntity() instanceof Player) {
+            Entity damager = e.getDamager();
+            boolean damageSourceIsPlayer = damager instanceof Player;
+            if (damager instanceof Projectile) {
+                Projectile projectile = (Projectile) damager;
+                damageSourceIsPlayer = projectile.getShooter() instanceof Player;
+            }
+
+            if (damageSourceIsPlayer && !plot.hasFlag(PlotFlags.PVP_ON)) {
+                e.setCancelled(true);
+                e.setDamage(0);
+            }
+            return;
+        }
+
+        if (e.getEntity() instanceof Animals) {
+            if (plot.hasFlag(PlotFlags.ANIMALS_INVINCIBLE)) {
+                e.setCancelled(true);
+                e.setDamage(0);
+            }
+            return;
+        }
+
+        if (e.getDamager() instanceof Player) {
+            PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer(e.getDamager().getName());
+            if (!player.canInteractEntity(plot)) {
+                e.setCancelled(true);
+                e.setDamage(0);
+            }
+        }
+
+        if (e.getDamager() instanceof TNTPrimed || e.getDamager() instanceof ExplosiveMinecart) {
+            if (!plot.hasFlag(PlotFlags.EXPLOSIONS_ON) || plot != pm.getPlotAt(e.getDamager().getLocation())) {
+                e.setCancelled(true);
+                e.setDamage(0);
+            }
+        }
+    }
+}

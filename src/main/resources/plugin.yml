@@ -1,0 +1,14 @@
+name: SurvivalPlots
+version: '${project.version}'
+main: xyz.destiall.survivalplots.SurvivalPlotsPlugin
+api-version: 1.19
+softdepend: [ WorldGuard, WorldEdit, FastAsyncWorldEdit ]
+authors: [ destiall ]
+description: Make plots in your survival world
+commands:
+  svplots:
+    description: SurvivalPlots main command
+    aliases:
+      - svplot
+      - plot
+      - plots
