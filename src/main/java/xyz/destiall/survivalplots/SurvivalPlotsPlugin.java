@@ -52,6 +52,11 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
     }
 
+    public void reload() {
+        onDisable();
+        onEnable();
+    }
+
     public PlotManager getPlotManager() {
         return plotManager;
     }

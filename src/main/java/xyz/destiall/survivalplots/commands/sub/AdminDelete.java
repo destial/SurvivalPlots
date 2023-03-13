@@ -2,6 +2,7 @@ package xyz.destiall.survivalplots.commands.sub;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
@@ -27,7 +28,7 @@ public class AdminDelete extends SubCommand {
             PlotManager pm = plugin.getPlotManager();
             SurvivalPlot plot = pm.getPlotAt(((Player) sender).getLocation());
             if (plot == null) {
-                sender.sendMessage(color("&cYou are not standing on a plot!"));
+                sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
                 return;
             }
 

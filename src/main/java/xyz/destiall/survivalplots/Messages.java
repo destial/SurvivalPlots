@@ -66,6 +66,8 @@ public class Messages {
             message = message.replace("{plotid}", ""+plot.getId());
             message = message.replace("{plotowner}", ""+plot.getRawOwner());
             message = message.replace("{plotcost}", plot.getOwner() == null ? ""+SurvivalPlotsPlugin.getInst().getEconomyManager().getPlotCost() : "N/A");
+            message = message.replace("{plotmembers}", String.join(", ", plot.getMembers()));
+            message = message.replace("{plotdescription}", plot.getDescription());
         }
 
         return message;
@@ -84,6 +86,9 @@ public class Messages {
         NO_OPEN_INVENTORY("&cYou do not have permission to open this!"),
         NO_PVP("&cYou do not have permission to PvP here!"),
         NO_USE("&cYou do not have permission to use here!"),
+        INFO("&6Plot Info:\n&6Owner: {plotowner}\n&6Members: {plotmembers}\n&6ID: {plotid}"),
+        NO_PERMS_ON_PLOT("&cYou do not own this plot!"),
+        NOT_STANDING_ON_PLOT("&cYou are not standing on a plot!"),
 
         ;
         private final String defaultMessage;

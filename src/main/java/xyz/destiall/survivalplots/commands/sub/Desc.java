@@ -1,6 +1,6 @@
 package xyz.destiall.survivalplots.commands.sub;
 
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,13 +11,10 @@ import xyz.destiall.survivalplots.plot.PlotFlags;
 import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static xyz.destiall.survivalplots.commands.PlotCommand.color;
 
-public class Trust extends SubCommand {
-    public Trust() {
+public class Desc extends SubCommand {
+    public Desc() {
         super("user");
     }
 
@@ -27,8 +24,8 @@ public class Trust extends SubCommand {
             sender.sendMessage(color("&cYou need to be a player!"));
             return;
         }
-        Location location = ((Player) sender).getLocation();
 
+        Location location = ((Player) sender).getLocation();
         PlotManager pm = plugin.getPlotManager();
         SurvivalPlot plot = pm.getPlotAt(location);
         if (plot == null) {
@@ -37,37 +34,20 @@ public class Trust extends SubCommand {
         }
 
         PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
-        if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_TRUST_OTHER) || !player.isMember(plot))) {
+        if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_EDIT_DESCRIPTION) || !player.isMember(plot))) {
             sender.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get((Player) sender, plot));
             return;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(color("&cYou need to mention a player to trust!"));
+            sender.sendMessage(color("&cYou need to include a description!"));
             return;
         }
 
-        String name = args[0];
-        Player toTrust = plugin.getServer().getPlayer(name);
-        if (toTrust == null) {
-            sender.sendMessage(color("&cPlayer is not online!"));
-            return;
-        }
+        String desc = ChatColor.stripColor(color(String.join(" ", args)));
+        plot.setDescription(desc);
 
-        if (plot.trust(toTrust)) {
-            sender.sendMessage(color("&aTrusted " + toTrust.getName() + " in this plot!"));
-            return;
-        }
-
-        sender.sendMessage(color("&cAlready trusted " + toTrust.getName() + " in this plot!"));
-    }
-
-    @Override
-    public List<String> tab(CommandSender sender, String[] args) {
-        if (args.length == 0)
-            return super.tab(sender, args);
-
-        Player player = (Player) sender;
-        return Bukkit.getOnlinePlayers().stream().filter(player::canSee).map(Player::getName).filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        sender.sendMessage(color("&aSet your plot's description to: "));
+        sender.sendMessage(color("&6" + plot.getDescription()));
     }
 }

@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
@@ -35,13 +36,13 @@ public class Flags extends SubCommand {
         PlotManager pm = plugin.getPlotManager();
         SurvivalPlot plot = pm.getPlotAt(location);
         if (plot == null) {
-            sender.sendMessage(color("&cYou are not standing on a plot!"));
+            sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
             return;
         }
 
         PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
         if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_EDIT_FLAGS) || !player.isMember(plot))) {
-            sender.sendMessage(color("&cYou do not own this plot!"));
+            sender.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get((Player) sender, plot));
             return;
         }
 
@@ -57,6 +58,11 @@ public class Flags extends SubCommand {
         }
 
         if (args.length == 2 && args[1].equalsIgnoreCase("-l")) {
+            if (plot.hasFlag(flag)) {
+                plot.removeFlag(flag);
+            } else {
+                plot.addFlag(flag);
+            }
             sendFlags(sender, plot);
             return;
         }

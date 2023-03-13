@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.economy.Bank;
 import xyz.destiall.survivalplots.economy.EconomyManager;
@@ -53,7 +54,7 @@ public class Buy extends SubCommand {
         PlotManager pm = plugin.getPlotManager();
         SurvivalPlot plot = pm.getPlotAt(location);
         if (plot == null) {
-            sender.sendMessage(color("&cYou are not standing on a plot!"));
+            sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
             return;
         }
 

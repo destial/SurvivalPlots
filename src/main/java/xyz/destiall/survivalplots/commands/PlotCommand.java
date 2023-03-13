@@ -25,8 +25,10 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         this.plugin = plugin;
         subCommands = new HashMap<>();
 
-        subCommands.put("create", new AdminCreate());
-        subCommands.put("delete", new AdminDelete());
+        subCommands.put("admincreate", new AdminCreate());
+        subCommands.put("admindelete", new AdminDelete());
+        subCommands.put("adminreset", new AdminReset());
+        subCommands.put("adminreload", new AdminReload());
 
         subCommands.put("ban", new Ban());
         subCommands.put("buy", new Buy());
@@ -39,6 +41,7 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         subCommands.put("unban", new Unban());
         subCommands.put("info", new Info());
         subCommands.put("home", new Home());
+        subCommands.put("description", new Desc());
     }
 
     @Override

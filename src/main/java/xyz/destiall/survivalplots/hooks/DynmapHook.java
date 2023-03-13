@@ -25,7 +25,7 @@ public class DynmapHook {
     private static AreaStyle areaStyle = null;
     private static int updatePeriod = 300;
 
-    private static String infoWindow = "<div class=\"infowindow\"><span style=\"font-size:120%;\">Owner: %owner%</span><br /> Members <span style=\"font-weight:bold;\">%members%</span><br /> Banned <span style=\"font-weight:bold;\">%banned%</span></div>";
+    private static String infoWindow = "<div class=\"infowindow\"><span style=\"font-size:120%;\">Owner: %owner%</span><br />Members: <span style=\"font-weight:bold;\">%members%</span><br />Description: <span style=\"font-weight:bold;\">%description%</span></div>";
 
     private DynmapHook() {}
 
@@ -70,7 +70,6 @@ public class DynmapHook {
             }
         }
 
-
         MarkerAPI markerAPI = api.getMarkerAPI();
         plotMarker = markerAPI.getMarkerSet("survival.plots");
         if (plotMarker == null) {
@@ -92,8 +91,8 @@ public class DynmapHook {
             List<Integer> notUpdated = new ArrayList<>(areaMarkers.keySet());
             for (SurvivalPlot plot : SurvivalPlotsPlugin.getInst().getPlotManager().getAllPlots()) {
                 AreaMarker areaMarker = areaMarkers.get(plot.getId());
-                double[] x = new double[] {plot.getMin().getX(), plot.getMax().getX() + 1};
-                double[] z = new double[] {plot.getMin().getZ(), plot.getMax().getZ() + 1};
+                double[] x = new double[] {plot.getMin().getBlockX(), plot.getMax().getBlockX() + 1};
+                double[] z = new double[] {plot.getMin().getBlockZ(), plot.getMax().getBlockZ() + 1};
                 if (areaMarker == null) {
                     areaMarker = plotMarker.findAreaMarker("plot.area." + plot.getId());
                     areaMarkers.put(plot.getId(), areaMarker);
@@ -120,9 +119,10 @@ public class DynmapHook {
         String v = "<div class=\"regioninfo\">" + infoWindow + "</div>";
         v = v.replace("%owner%", plot.getRawOwner());
         v = v.replace("%id%", "" + plot.getId());
-        v = v.replace("%members%", String.join(", ", plot.getMembers()));
-        v = v.replace("%banned%", String.join(", ", plot.getBanned()));
-        v = v.replace("%flags%", plot.getFlags().stream().map(PlotFlags::getName).collect(Collectors.joining(", ")));
+        v = v.replace("%description%", plot.getDescription());
+        v = v.replace("%members%", plot.getMembers().size() > 0 ? String.join(", ", plot.getMembers()) : "None");
+        v = v.replace("%banned%", plot.getBanned().size() > 0 ? String.join(", ", plot.getBanned()) : "None");
+        v = v.replace("%flags%", plot.getFlags().size() > 0 ? plot.getFlags().stream().map(PlotFlags::getName).collect(Collectors.joining(", ")) : "None");
         return v;
     }
 

@@ -39,6 +39,7 @@ public class SurvivalPlot {
     private final List<String> members;
     private final List<String> banned;
     private final BoundingBox bounds;
+    private String description = "N/A";
     private String owner = "N/A";
     private Location center;
     private Date expiryDate;
@@ -63,6 +64,7 @@ public class SurvivalPlot {
         banned.addAll(section.getStringList("banned-members"));
         members.addAll(section.getStringList("trusted-members"));
         owner = section.getString("owner", "N/A");
+        description = section.getString("description", "N/A");
 
         if (!owner.equalsIgnoreCase("N/A")) {
             if (section.getLong("expiry") == 0) {
@@ -126,6 +128,7 @@ public class SurvivalPlot {
         config.set("plots." + id + ".banned-members", banned);
         config.set("plots." + id + ".owner", owner);
         config.set("plots." + id + ".expiry", expiryDate != null ? expiryDate.getTime() : 0);
+        config.set("plots." + id + ".description", description);
     }
 
     public boolean contains(Vector pos) {
@@ -239,6 +242,10 @@ public class SurvivalPlot {
         return true;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public PlotPlayer getOwner() {
         if (owner.equals("N/A"))
             return null;
@@ -255,6 +262,13 @@ public class SurvivalPlot {
     }
 
     public void updateExpiry() {
+        if (owner.equalsIgnoreCase("N/A")) {
+            expiryDate = null;
+            if (expiry != null)
+                expiry.cancel();
+            expiry = null;
+            return;
+        }
         Duration expiryLength = SurvivalPlotsPlugin.getDuration(SurvivalPlotsPlugin.getInst().getConfig().getString("plot-expiry", "30d"));
         expiryDate = Date.from(Instant.now().plus(expiryLength));
         scheduleExpiry();
@@ -262,8 +276,16 @@ public class SurvivalPlot {
 
     public void setOwner(String owner) {
         this.owner = owner;
+
+        if (owner.equalsIgnoreCase("N/A")) {
+            description = "N/A";
+        }
         updateExpiry();
         SurvivalPlotsPlugin.getInst().getPlotManager().update();
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setExpiryDate(Date expiryDate) {
@@ -293,6 +315,12 @@ public class SurvivalPlot {
             schematic.getAsyncClipboard().whenComplete((clip, err) -> loadSchematic(schematic));
             return;
         }
+
+        getCenter().getWorld().getNearbyEntities(bounds).forEach(en -> {
+            if (!(en instanceof Player)) {
+                en.remove();
+            }
+        });
 
         final BlockVector3 dimension = clipboard.getDimensions();
         final int WIDTH = dimension.getX();

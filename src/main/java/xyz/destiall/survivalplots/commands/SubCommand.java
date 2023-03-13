@@ -15,6 +15,20 @@ public abstract class SubCommand {
 
     private static final List<Permission> ALL_PERMISSIONS = new ArrayList<>();
 
+    static {
+        String[] staticPerms = {"svplots.bypass", "svplots.own.unlimited"};
+
+        for (String perm : staticPerms) {
+            Permission p = new Permission(perm);
+            try {
+                Bukkit.getServer().getPluginManager().addPermission(p);
+            } catch (Exception ignored) {
+                p = Bukkit.getServer().getPluginManager().getPermission(p.getName());
+            }
+            ALL_PERMISSIONS.add(p);
+        }
+    }
+
     public SubCommand(String permission) {
         plugin = SurvivalPlotsPlugin.getInst();
         this.permission = ALL_PERMISSIONS.stream().filter(p -> p.getName().equals("svplots." + permission)).findFirst().orElseGet(() -> {

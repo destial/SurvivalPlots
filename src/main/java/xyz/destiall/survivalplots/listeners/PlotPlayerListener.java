@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -68,6 +69,10 @@ public class PlotPlayerListener implements Listener {
                 BaseComponent[] component = TextComponent.fromLegacyText(Messages.Key.ENTER_OWNED_PLOT_TITLE.get(e.getPlayer(), plot));
                 BaseComponent[] component2 = TextComponent.fromLegacyText(Messages.Key.ENTER_OWNED_PLOT_SUBTITLE.get(e.getPlayer(), plot));
                 e.getPlayer().showTitle(component, component2, 5, 20, 5);
+
+                if (plot.hasFlag(PlotFlags.SHOW_DESCRIPTION_ENTER)) {
+                    e.getPlayer().sendMessage(color("&6" + plot.getDescription()));
+                }
                 return;
             }
 
@@ -94,6 +99,11 @@ public class PlotPlayerListener implements Listener {
         if (!player.canInteractEntity(plot)) {
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
+        onPlayerInteractEntity(e);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

@@ -3,6 +3,7 @@ package xyz.destiall.survivalplots.commands.sub;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
@@ -30,13 +31,13 @@ public class Unban extends SubCommand {
         PlotManager pm = plugin.getPlotManager();
         SurvivalPlot plot = pm.getPlotAt(location);
         if (plot == null) {
-            sender.sendMessage(color("&cYou are not standing on a plot!"));
+            sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
             return;
         }
 
         PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
         if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_BAN_OTHER) || !player.isMember(plot))) {
-            sender.sendMessage(color("&cYou do not own this plot!"));
+            sender.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get((Player) sender, plot));
             return;
         }
 

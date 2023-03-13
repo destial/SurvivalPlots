@@ -8,7 +8,7 @@ public enum PlotFlags {
     MEMBER_OPEN_INVENTORY("member_open_inventory", "Allow members to open chests"),
     MEMBER_INTERACT_BLOCK("member_use_block", "Allow members to use or interact with blocks (e.g gates, doors)"),
     MEMBER_INTERACT_ENTITY("member_use_entity", "Allow members to use or interact with entities (e.g. armor stands, horse)"),
-
+    MEMBER_EDIT_DESCRIPTION("member_edit_description", "Allow members to edit the plot's description"),
     MEMBER_EDIT_FLAGS("member_edit_flags", "Allow members to edit this plot's flags"),
     MEMBER_TRUST_OTHER("member_trust_other", "Allow members to trust other players in this plot"),
     MEMBER_BAN_OTHER("member_ban_other", "Allow members to ban other players from this plot"),
@@ -22,6 +22,7 @@ public enum PlotFlags {
     PVP_ON("pvp", "Allow player combat"),
     EXPLOSIONS_ON("explosions", "Allow explosions"),
     REDSTONE_ON("redstone", "Allow redstone"),
+    SHOW_DESCRIPTION_ENTER("show_description_on_enter", "Show your plot's description when entering"),
 
     ;
 

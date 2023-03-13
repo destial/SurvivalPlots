@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class PlotManager {
     private final List<SurvivalPlot> plots;
@@ -50,8 +51,9 @@ public class PlotManager {
 
                 SurvivalPlot plot = new SurvivalPlot(i, Objects.requireNonNull(plotSection.getConfigurationSection(id)));
                 plots.add(plot);
-                plugin.getLogger().info("Loaded plot " + i);
             }
+
+            plugin.getLogger().info("Loaded plots [" + plots.stream().map(p -> ""+p.getId()).collect(Collectors.joining(", ")) + "] (" + plots.size() + " in size)");
         }
 
         plots.sort(Comparator.comparingInt(SurvivalPlot::getId));

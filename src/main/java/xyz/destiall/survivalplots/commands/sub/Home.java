@@ -34,6 +34,11 @@ public class Home extends SubCommand {
             }
         }
 
+        if (plot == null) {
+            sender.sendMessage(color("&cYou have no plots!"));
+            return;
+        }
+
         ((Player)sender).teleport(plot.getCenter());
         sender.sendMessage(Messages.Key.TELEPORT_HOME.get((Player) sender, plot));
     }

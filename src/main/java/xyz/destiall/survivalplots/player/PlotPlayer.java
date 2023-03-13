@@ -45,6 +45,9 @@ public class PlotPlayer {
     }
 
     public boolean canBuild(SurvivalPlot plot) {
+        if (hasBypass())
+            return true;
+
         if (isBanned(plot))
             return false;
 
@@ -52,6 +55,9 @@ public class PlotPlayer {
     }
 
     public boolean canInteractBlock(SurvivalPlot plot) {
+        if (hasBypass())
+            return true;
+
         if (isBanned(plot))
             return false;
 
@@ -59,17 +65,32 @@ public class PlotPlayer {
     }
 
     public boolean canInteractEntity(SurvivalPlot plot) {
+        if (hasBypass())
+            return true;
+
         if (isBanned(plot))
             return false;
 
-        return isOwner(plot) || (isMember(plot) && plot.hasFlag(PlotFlags.GUEST_INTERACT_ENTITY)) || plot.hasFlag(PlotFlags.GUEST_INTERACT_ENTITY);
+        return isOwner(plot) || (isMember(plot) && plot.hasFlag(PlotFlags.MEMBER_INTERACT_ENTITY)) || plot.hasFlag(PlotFlags.GUEST_INTERACT_ENTITY);
     }
 
     public boolean canOpenInventory(SurvivalPlot plot) {
+        if (hasBypass())
+            return true;
+
         if (isBanned(plot))
             return false;
 
         return isOwner(plot) || (isMember(plot) && plot.hasFlag(PlotFlags.MEMBER_OPEN_INVENTORY)) || plot.hasFlag(PlotFlags.GUEST_OPEN_INVENTORY);
+    }
+
+    public boolean hasBypass() {
+        OfflinePlayer of = getPlayer();
+        if (!of.isOnline())
+            return false;
+
+        Player p = (Player) of;
+        return p.hasPermission("svplots.bypass");
     }
 
     public boolean executeConfirmation() {

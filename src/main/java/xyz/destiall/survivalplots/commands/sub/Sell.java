@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.economy.Bank;
 import xyz.destiall.survivalplots.hooks.Schematic;
@@ -35,7 +36,7 @@ public class Sell extends SubCommand {
         PlotManager pm = plugin.getPlotManager();
         SurvivalPlot plot = pm.getPlotAt(location);
         if (plot == null) {
-            sender.sendMessage(color("&cYou are not standing on a plot!"));
+            sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
             return;
         }
 
@@ -47,8 +48,9 @@ public class Sell extends SubCommand {
 
         Runnable afterConfirmation = () -> {
             Bank bank = plugin.getEconomyManager().getBank((Player) sender);
-            bank.deposit(plugin.getEconomyManager().getPlotCost() / 2);
-            sender.sendMessage(color("&aRefunded back " + (plugin.getEconomyManager().getPlotCost() / 2f) + " " + plugin.getEconomyManager().getEconomyMaterial().name()));
+            int cost = plugin.getEconomyManager().getPlotCost() / 2;
+            bank.deposit(cost);
+            sender.sendMessage(color("&aRefunded back " + cost + " " + plugin.getEconomyManager().getEconomyMaterial().name()));
 
             WorldEditHook.backupPlot(plot, plot.getOwner().getName());
             sender.sendMessage(color("&aSuccessfully backed-up plot " + plot.getId()));
