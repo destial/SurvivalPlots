@@ -1,5 +1,9 @@
 package xyz.destiall.survivalplots.commands.sub;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -42,7 +46,6 @@ public class Reset extends SubCommand {
         final EconomyManager econ = plugin.getEconomyManager();
 
         Runnable afterConfirmation = () -> {
-
             Bank account = econ.getBank((Player) sender);
 
             if (!account.withdraw(econ.getPlotReset())) {
@@ -64,7 +67,10 @@ public class Reset extends SubCommand {
         };
 
         player.setConfirmation(afterConfirmation);
-        sender.sendMessage(color("&eType &6/plot confirm &eto confirm resetting your plot."));
+        TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm resetting your plot."));
+        component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&aClick to confirm"))));
+        component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot confirm"));
+        sender.sendMessage(component);
         sender.sendMessage(color("&eResetting costs " + econ.getPlotReset() + " " + econ.getEconomyMaterial().name()));
         sender.sendMessage(color("&cWARNING!! Resetting will reset your plot to its default state!"));
     }

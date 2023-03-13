@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -65,13 +66,11 @@ public class SurvivalPlot {
 
         if (!owner.equalsIgnoreCase("N/A")) {
             if (section.getLong("expiry") == 0) {
-                Duration expiryLength = SurvivalPlotsPlugin.getDuration(SurvivalPlotsPlugin.getInst().getConfig().getString("plot-expiry", "30d"));
-                expiryDate = Date.from(Instant.now().plus(expiryLength));
+                updateExpiry();
             } else {
                 expiryDate = new Date(section.getLong("expiry"));
+                scheduleExpiry();
             }
-
-            scheduleExpiry();
         }
     }
 
@@ -79,7 +78,7 @@ public class SurvivalPlot {
         if (expiryDate == null)
             return;
 
-        disableTimer();
+        disableExpiryTimer();
 
         expiry = new Timer();
         expiry.schedule(new TimerTask() {
@@ -94,13 +93,14 @@ public class SurvivalPlot {
                     SurvivalPlotsPlugin.getInst().getPlotManager().update();
                     return;
                 }
+
                 WorldEditHook.backupPlot(SurvivalPlot.this, getOwner().getName());
                 Schematic def = WorldEditHook.loadPlot(SurvivalPlot.this, "default");
                 if (def != null) {
                     SurvivalPlot.this.loadSchematic(def);
                 }
                 setExpiryDate(null);
-                disableTimer();
+                disableExpiryTimer();
                 getMembers().clear();
                 getBanned().clear();
                 getFlags().clear();
@@ -111,7 +111,7 @@ public class SurvivalPlot {
     }
 
 
-    public void disableTimer() {
+    public void disableExpiryTimer() {
         if (expiry != null)
             expiry.cancel();
         expiry = null;
@@ -129,9 +129,9 @@ public class SurvivalPlot {
     }
 
     public boolean contains(Vector pos) {
-        return pos.getX() >= bounds.getMinX() && pos.getX() <= bounds.getMaxX() &&
-                pos.getY() >= bounds.getMinY() && pos.getY() <= bounds.getMaxY() &&
-                pos.getZ() >= bounds.getMinZ() && pos.getZ() <= bounds.getMaxZ();
+        return pos.getBlockX() >= bounds.getMinX() && pos.getBlockX() <= bounds.getMaxX() &&
+                pos.getBlockY() >= bounds.getMinY() && pos.getBlockY() <= bounds.getMaxY() &&
+                pos.getBlockZ() >= bounds.getMinZ() && pos.getBlockZ() <= bounds.getMaxZ();
     }
 
     public boolean contains(Location location) {
@@ -246,6 +246,10 @@ public class SurvivalPlot {
         return SurvivalPlotsPlugin.getInst().getPlotPlayerManager().getPlotPlayer(owner);
     }
 
+    public String getRawOwner() {
+        return owner;
+    }
+
     public World getWorld() {
         return Bukkit.getWorld(worldName);
     }
@@ -271,22 +275,31 @@ public class SurvivalPlot {
             center = new Location(getWorld(), bounds.getCenterX(), bounds.getMinY(), bounds.getCenterZ());
             while (center.getBlock().getType() != Material.AIR) {
                 center.add(0, 1, 0);
+                if (center.getBlock().getRelative(BlockFace.UP).getType() != Material.AIR) {
+                    center.add(0, 1, 0);
+                }
             }
         }
         return center;
     }
 
+    /// Source: PlotSquared v6
     public void loadSchematic(Schematic schematic) {
         Clipboard clipboard = schematic.getClipboard();
-        if (clipboard == null)
+        if (clipboard == null && schematic.getAsyncClipboard() == null)
             return;
 
-        BlockVector3 dimension = schematic.getClipboard().getDimensions();
+        if (clipboard == null) {
+            schematic.getAsyncClipboard().whenComplete((clip, err) -> loadSchematic(schematic));
+            return;
+        }
+
+        final BlockVector3 dimension = clipboard.getDimensions();
         final int WIDTH = dimension.getX();
         final int LENGTH = dimension.getZ();
         final int HEIGHT = dimension.getY();
         final int worldHeight = getMax().getBlockY() - getMin().getBlockY() + 1;
-        // Validate dimensions
+
         CuboidRegion region = WorldEditHook.adapt(getWorld(), getBounds());
         boolean sizeMismatch =
                 ((region.getMaximumPoint().getX() - region.getMinimumPoint().getX() + 1) < WIDTH) ||
@@ -296,23 +309,20 @@ public class SurvivalPlot {
             SurvivalPlotsPlugin.getPlugin(SurvivalPlotsPlugin.class).getLogger().warning("Schematic size mismatch! Skipping...");
             return;
         }
-        // block type and data arrays
-        final Clipboard blockArrayClipboard = schematic.getClipboard();
-        // Calculate the optimal height to paste the schematic at
 
         final int p1x = region.getMinimumPoint().getX();
         final int p1y = region.getMinimumPoint().getY();
         final int p1z = region.getMinimumPoint().getZ();
 
-        for (int ry = 0; ry < blockArrayClipboard.getDimensions().getY(); ry++) {
+        for (int ry = 0; ry < HEIGHT; ry++) {
             final int finalry = ry;
-            Bukkit.getScheduler().runTask(SurvivalPlotsPlugin.getPlugin(SurvivalPlotsPlugin.class), () -> {
+            SurvivalPlotsPlugin.run(() -> {
                 int yy = p1y + finalry;
-                for (int rz = 0; rz < blockArrayClipboard.getDimensions().getZ(); rz++) {
-                    for (int rx = 0; rx < blockArrayClipboard.getDimensions().getX(); rx++) {
+                for (int rz = 0; rz < LENGTH; rz++) {
+                    for (int rx = 0; rx < WIDTH; rx++) {
                         int xx = p1x + rx;
                         int zz = p1z + rz;
-                        BaseBlock id = blockArrayClipboard.getFullBlock(BlockVector3.at(rx, finalry, rz));
+                        BaseBlock id = clipboard.getFullBlock(BlockVector3.at(rx, finalry, rz));
                         Location plotLoc = new Location(getWorld(), xx, yy, zz);
                         plotLoc.getBlock().setBlockData(BukkitAdapter.adapt(id));
                     }

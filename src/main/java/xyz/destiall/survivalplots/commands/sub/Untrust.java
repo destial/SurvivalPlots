@@ -10,6 +10,7 @@ import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static xyz.destiall.survivalplots.commands.PlotCommand.color;
 
@@ -55,9 +56,9 @@ public class Untrust extends SubCommand {
 
     @Override
     public List<String> tab(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player) || args.length == 0)
             return super.tab(sender, args);
-        }
+
         Location location = ((Player) sender).getLocation();
 
         PlotManager pm = plugin.getPlotManager();
@@ -71,6 +72,6 @@ public class Untrust extends SubCommand {
             return super.tab(sender, args);
         }
 
-        return plot.getMembers();
+        return plot.getMembers().stream().filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList());
     }
 }

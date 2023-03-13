@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.player.PlotPlayerManager;
@@ -56,15 +57,22 @@ public class PlotPlayerListener implements Listener {
         PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
         if (player.isBanned(plot)) {
             e.setCancelled(true);
-            BaseComponent[] component = TextComponent.fromLegacyText(color("&cBanned!"));
-            BaseComponent[] component2 = TextComponent.fromLegacyText(color("&cThis plot has banned you!"));
+            BaseComponent[] component = TextComponent.fromLegacyText(Messages.Key.BANNED_FROM_PLOT_TITLE.get(e.getPlayer(), plot));
+            BaseComponent[] component2 = TextComponent.fromLegacyText(Messages.Key.BANNED_FROM_PLOT_SUBTITLE.get(e.getPlayer(), plot));
             e.getPlayer().showTitle(component, component2, 5, 20, 5);
             return;
         }
 
-        if (plot.getOwner() != null && pm.getPlotAt(e.getFrom()) != plot) {
-            BaseComponent[] component = TextComponent.fromLegacyText(color("&6Plot Owner:"));
-            BaseComponent[] component2 = TextComponent.fromLegacyText(color("&6" + plot.getOwner().getName()));
+        if (pm.getPlotAt(e.getFrom()) != plot) {
+            if (plot.getOwner() != null) {
+                BaseComponent[] component = TextComponent.fromLegacyText(Messages.Key.ENTER_OWNED_PLOT_TITLE.get(e.getPlayer(), plot));
+                BaseComponent[] component2 = TextComponent.fromLegacyText(Messages.Key.ENTER_OWNED_PLOT_SUBTITLE.get(e.getPlayer(), plot));
+                e.getPlayer().showTitle(component, component2, 5, 20, 5);
+                return;
+            }
+
+            BaseComponent[] component = TextComponent.fromLegacyText(Messages.Key.ENTER_AVAILABLE_PLOT_TITLE.get(e.getPlayer(), plot));
+            BaseComponent[] component2 = TextComponent.fromLegacyText(Messages.Key.ENTER_AVAILABLE_PLOT_SUBTITLE.get(e.getPlayer(), plot));
             e.getPlayer().showTitle(component, component2, 5, 20, 5);
         }
     }
@@ -107,16 +115,22 @@ public class PlotPlayerListener implements Listener {
             if (damageSourceIsPlayer && !plot.hasFlag(PlotFlags.PVP_ON)) {
                 e.setCancelled(true);
                 e.setDamage(0);
+                if (e.getDamager() instanceof Player) {
+                    e.getEntity().sendMessage(Messages.Key.NO_PVP.get((Player) e.getDamager(), plot));
+                }
+                return;
             }
-            return;
         }
 
         if (e.getEntity() instanceof Animals) {
             if (plot.hasFlag(PlotFlags.ANIMALS_INVINCIBLE)) {
                 e.setCancelled(true);
                 e.setDamage(0);
+                if (e.getDamager() instanceof Player) {
+                    e.getEntity().sendMessage(Messages.Key.NO_INTERACT.get((Player) e.getDamager(), plot));
+                }
+                return;
             }
-            return;
         }
 
         if (e.getDamager() instanceof Player) {
@@ -124,6 +138,8 @@ public class PlotPlayerListener implements Listener {
             if (!player.canInteractEntity(plot)) {
                 e.setCancelled(true);
                 e.setDamage(0);
+                e.getEntity().sendMessage(Messages.Key.NO_INTERACT.get((Player) e.getDamager(), plot));
+                return;
             }
         }
 

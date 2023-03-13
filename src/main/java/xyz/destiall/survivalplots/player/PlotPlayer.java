@@ -76,11 +76,11 @@ public class PlotPlayer {
         if (confirmation == null)
             return false;
 
-        confirmation.run();
-        confirmation = null;
-
         confirmationTimer.cancel();
         confirmationTimer = null;
+
+        confirmation.run();
+        confirmation = null;
         return true;
     }
 
@@ -90,6 +90,7 @@ public class PlotPlayer {
         if (confirmationTimer != null) {
             confirmationTimer.cancel();
         }
+
         confirmationTimer = new Timer();
         confirmationTimer.schedule(new TimerTask() {
             @Override

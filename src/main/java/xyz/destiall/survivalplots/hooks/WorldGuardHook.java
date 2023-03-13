@@ -23,7 +23,8 @@ public class WorldGuardHook {
     }
 
     public static boolean canPlace(Player player, Location location) {
-        if (!enabled) return true;
+        if (!enabled)
+            return true;
 
         RegionManager rm = getRegionManager(location);
         if (rm == null)
@@ -33,7 +34,8 @@ public class WorldGuardHook {
     }
 
     public static boolean canBreak(Player player, Location location) {
-        if (!enabled) return true;
+        if (!enabled)
+            return true;
 
         RegionManager rm = getRegionManager(location);
         if (rm == null)

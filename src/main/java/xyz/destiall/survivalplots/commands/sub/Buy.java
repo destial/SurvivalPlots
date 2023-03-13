@@ -75,6 +75,5 @@ public class Buy extends SubCommand {
 
         plot.setOwner(sender.getName());
         ((Player) sender).teleport(plot.getCenter());
-        sender.sendMessage(color("&aYou have bought this plot!"));
     }
 }

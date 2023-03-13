@@ -46,20 +46,18 @@ public class Flags extends SubCommand {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(color("&6Plot Flags:"));
-            for (PlotFlags flag : PlotFlags.values()) {
-                String c = plot.hasFlag(flag) ? "&a" : "&c";
-                TextComponent component = new TextComponent(color(c + flag.getName() + ": " + (plot.hasFlag(flag) ? "ON" : "OFF")));
-                component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&6" + flag.getDescription()))));
-                component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot flags " + flag.getName()));
-                sender.sendMessage(component);
-            }
+            sendFlags(sender, plot);
             return;
         }
 
         PlotFlags flag = PlotFlags.getFlag(args[0]);
         if (flag == null) {
             sender.sendMessage(color("&cAvailable flags: " + Arrays.stream(PlotFlags.values()).map(PlotFlags::getName).collect(Collectors.joining(", "))));
+            return;
+        }
+
+        if (args.length == 2 && args[1].equalsIgnoreCase("-l")) {
+            sendFlags(sender, plot);
             return;
         }
 
@@ -70,7 +68,18 @@ public class Flags extends SubCommand {
             plot.addFlag(flag);
             sender.sendMessage(color("&aAdded flag " + flag.getName() + " from this plot!"));
         }
+    }
 
+    private void sendFlags(CommandSender sender, SurvivalPlot plot) {
+        sender.sendMessage(color("&6Plot Flags:"));
+        for (PlotFlags flag : PlotFlags.values()) {
+            String c = plot.hasFlag(flag) ? "&a" : "&c";
+            TextComponent component = new TextComponent(color(c + flag.getName() + ": " + (plot.hasFlag(flag) ? "ON" : "OFF")));
+            component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&6" + flag.getDescription()))));
+            component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot flags " + flag.getName() + " -l"));
+            sender.sendMessage(component);
+        }
+        sender.sendMessage(color("&6-=-=-=-=-=-=-=-=-=-=-"));
     }
 
     @Override

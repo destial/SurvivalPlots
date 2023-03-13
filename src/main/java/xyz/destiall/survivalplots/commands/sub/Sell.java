@@ -1,5 +1,9 @@
 package xyz.destiall.survivalplots.commands.sub;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -59,12 +63,15 @@ public class Sell extends SubCommand {
             plot.getBanned().clear();
             plot.getFlags().clear();
             plot.getFlags().addAll(PlotFlags.def());
-            plot.disableTimer();
+            plot.disableExpiryTimer();
             plot.setOwner("N/A");
         };
 
         player.setConfirmation(afterConfirmation);
-        sender.sendMessage(color("&eType &6/plot confirm &eto confirm selling your plot"));
+        TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm selling your plot."));
+        component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&aClick to confirm"))));
+        component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot confirm"));
+        sender.sendMessage(component);
         sender.sendMessage(color("&cWARNING!! Selling your plot will lose your ownership status!"));
         sender.sendMessage(color("&cYou will also be refunded half the buy price!"));
     }

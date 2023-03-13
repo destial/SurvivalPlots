@@ -63,7 +63,10 @@ public class Trust extends SubCommand {
 
     @Override
     public List<String> tab(CommandSender sender, String[] args) {
+        if (args.length == 0)
+            return super.tab(sender, args);
+
         Player player = (Player) sender;
-        return Bukkit.getOnlinePlayers().stream().filter(player::canSee).map(Player::getName).collect(Collectors.toList());
+        return Bukkit.getOnlinePlayers().stream().filter(player::canSee).map(Player::getName).filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList());
     }
 }

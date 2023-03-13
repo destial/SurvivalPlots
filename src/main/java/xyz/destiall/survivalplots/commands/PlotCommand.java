@@ -8,17 +8,7 @@ import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
-import xyz.destiall.survivalplots.commands.sub.AdminCreate;
-import xyz.destiall.survivalplots.commands.sub.AdminDelete;
-import xyz.destiall.survivalplots.commands.sub.Ban;
-import xyz.destiall.survivalplots.commands.sub.Buy;
-import xyz.destiall.survivalplots.commands.sub.Confirm;
-import xyz.destiall.survivalplots.commands.sub.Flags;
-import xyz.destiall.survivalplots.commands.sub.Reset;
-import xyz.destiall.survivalplots.commands.sub.Sell;
-import xyz.destiall.survivalplots.commands.sub.Trust;
-import xyz.destiall.survivalplots.commands.sub.Unban;
-import xyz.destiall.survivalplots.commands.sub.Untrust;
+import xyz.destiall.survivalplots.commands.sub.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,13 +37,20 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         subCommands.put("trust", new Trust());
         subCommands.put("untrust", new Untrust());
         subCommands.put("unban", new Unban());
+        subCommands.put("info", new Info());
+        subCommands.put("home", new Home());
     }
-
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 0)
+        if (args.length == 0) {
+            sender.sendMessage(color("&cUsages: /" + command.getName() + " [" +
+                    subCommands.entrySet().stream()
+                    .filter(s -> sender.hasPermission(s.getValue().getPermission()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.joining(",")) + "]"));
             return false;
+        }
 
         SubCommand sub = subCommands.get(args[0].toLowerCase());
         if (sub == null) {

@@ -21,7 +21,9 @@ public enum PlotFlags {
     ANIMALS_INVINCIBLE("animals_invincible", "Make animals invincible to damage"),
     PVP_ON("pvp", "Allow player combat"),
     EXPLOSIONS_ON("explosions", "Allow explosions"),
-    REDSTONE_ON("redstone", "Allow redstone");
+    REDSTONE_ON("redstone", "Allow redstone"),
+
+    ;
 
     private final String desc;
     private final String name;

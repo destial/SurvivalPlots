@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -17,6 +18,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.util.Vector;
+import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.hooks.WorldGuardHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
@@ -45,6 +47,7 @@ public class PlotBlocksListener implements Listener {
         if (!player.canBuild(plot)) {
             e.setCancelled(true);
             e.setDropItems(false);
+            e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
             return;
         }
 
@@ -67,6 +70,7 @@ public class PlotBlocksListener implements Listener {
         if (!player.canBuild(plot)) {
             e.setCancelled(true);
             e.setBuild(false);
+            e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
             return;
         }
 
@@ -102,6 +106,7 @@ public class PlotBlocksListener implements Listener {
         if (!player.canBuild(plot)) {
             e.setCancelled(true);
             e.setInstaBreak(false);
+            e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
         }
     }
 
@@ -134,6 +139,7 @@ public class PlotBlocksListener implements Listener {
                 if (pm.getPlotAt(state.getLocation()) != null) {
                     e.setCancelled(true);
                     e.setBuild(false);
+                    e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
                     return;
                 }
             }
@@ -145,6 +151,7 @@ public class PlotBlocksListener implements Listener {
         if (!player.canBuild(plot)) {
             e.setCancelled(true);
             e.setBuild(false);
+            e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
             return;
         }
 
@@ -157,6 +164,7 @@ public class PlotBlocksListener implements Listener {
             if (plot != pm.getPlotAt(state.getLocation())) {
                 e.setCancelled(true);
                 e.setBuild(false);
+                e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
                 return;
             }
         }

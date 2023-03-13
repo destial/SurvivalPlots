@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlotManager {
@@ -47,7 +48,7 @@ public class PlotManager {
                     latestId = i;
                 }
 
-                SurvivalPlot plot = new SurvivalPlot(i, plotSection.getConfigurationSection(id));
+                SurvivalPlot plot = new SurvivalPlot(i, Objects.requireNonNull(plotSection.getConfigurationSection(id)));
                 plots.add(plot);
                 plugin.getLogger().info("Loaded plot " + i);
             }
@@ -105,11 +106,11 @@ public class PlotManager {
     public boolean deletePlot(SurvivalPlot plot) {
         if (plots.remove(plot)) {
             plotsConfig.set("plots." + plot.getId(), null);
-            plot.disableTimer();
+            plot.disableExpiryTimer();
             saveToFile();
             File plotsBackup = new File(SurvivalPlotsPlugin.getPlugin(SurvivalPlotsPlugin.class).getDataFolder(), "backups" + File.separator + plot.getId() + File.separator);
             if (plotsBackup.exists()) {
-                delete(plotsBackup);
+                SurvivalPlotsPlugin.runAsync(() -> delete(plotsBackup));
             }
         }
         return true;
@@ -117,7 +118,7 @@ public class PlotManager {
 
     public void disable() {
         for (SurvivalPlot plot : plots) {
-            plot.disableTimer();
+            plot.disableExpiryTimer();
         }
     }
 
@@ -137,6 +138,16 @@ public class PlotManager {
     }
 
     public void saveToFile() {
+        if (plugin.getConfig().getBoolean("async-file-operations")) {
+            SurvivalPlotsPlugin.runAsync(() -> {
+                try {
+                    plotsConfig.save(plotsFile);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            return;
+        }
         try {
             plotsConfig.save(plotsFile);
         } catch (Exception e) {
@@ -150,7 +161,6 @@ public class PlotManager {
                 delete(c);
             }
         }
-
         f.delete();
     }
 }

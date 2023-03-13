@@ -45,6 +45,9 @@ public class AdminDelete extends SubCommand {
 
     @Override
     public List<String> tab(CommandSender sender, String[] args) {
+        if (args.length == 0)
+            return super.tab(sender, args);
+
         return plugin.getPlotManager().getAllPlots().stream()
                 .map(p -> ""+p.getId())
                 .filter(id -> id.startsWith(args[0].toLowerCase()))

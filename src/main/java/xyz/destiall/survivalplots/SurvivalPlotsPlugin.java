@@ -1,9 +1,12 @@
 package xyz.destiall.survivalplots;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import xyz.destiall.survivalplots.commands.PlotCommand;
 import xyz.destiall.survivalplots.economy.EconomyManager;
+import xyz.destiall.survivalplots.hooks.DynmapHook;
 import xyz.destiall.survivalplots.hooks.WorldGuardHook;
 import xyz.destiall.survivalplots.listeners.PlotBlocksListener;
 import xyz.destiall.survivalplots.listeners.PlotInventoryListener;
@@ -35,6 +38,8 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
 
         getCommand("svplots").setExecutor(new PlotCommand(this));
         WorldGuardHook.check();
+        DynmapHook.check();
+        Messages.init(this);
     }
 
     @Override
@@ -83,5 +88,29 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
             }
         }
         return Duration.of(Integer.parseInt(numberString.toString()), unit);
+    }
+
+    public static BukkitTask runAsync(Runnable runnable) {
+        return Bukkit.getScheduler().runTaskAsynchronously(getInst(), runnable);
+    }
+
+    public static BukkitTask run(Runnable runnable) {
+        return Bukkit.getScheduler().runTask(getInst(), runnable);
+    }
+
+    public static BukkitTask scheduleAsync(Runnable runnable, long ticks) {
+        return Bukkit.getScheduler().runTaskLaterAsynchronously(getInst(), runnable, ticks);
+    }
+
+    public static BukkitTask schedule(Runnable runnable, long ticks) {
+        return Bukkit.getScheduler().runTaskLater(getInst(), runnable, ticks);
+    }
+
+    public static BukkitTask repeatAsync(Runnable runnable, long delay, long period) {
+        return Bukkit.getScheduler().runTaskTimerAsynchronously(getInst(), runnable, delay, period);
+    }
+
+    public static BukkitTask repeat(Runnable runnable, long delay, long period) {
+        return Bukkit.getScheduler().runTaskTimer(getInst(), runnable, delay, period);
     }
 }
