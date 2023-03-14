@@ -7,6 +7,7 @@ import org.bukkit.scheduler.BukkitTask;
 import xyz.destiall.survivalplots.commands.PlotCommand;
 import xyz.destiall.survivalplots.economy.EconomyManager;
 import xyz.destiall.survivalplots.hooks.DynmapHook;
+import xyz.destiall.survivalplots.hooks.GriefPreventionHook;
 import xyz.destiall.survivalplots.hooks.WorldGuardHook;
 import xyz.destiall.survivalplots.listeners.PlotBlocksListener;
 import xyz.destiall.survivalplots.listeners.PlotInventoryListener;
@@ -39,6 +40,7 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
         getCommand("svplots").setExecutor(new PlotCommand(this));
         WorldGuardHook.check();
         DynmapHook.check();
+        GriefPreventionHook.check();
         Messages.init(this);
     }
 

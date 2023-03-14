@@ -11,7 +11,7 @@ import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.economy.Bank;
 import xyz.destiall.survivalplots.economy.EconomyManager;
-import xyz.destiall.survivalplots.hooks.Schematic;
+import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotManager;

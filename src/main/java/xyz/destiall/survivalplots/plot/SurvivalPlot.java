@@ -16,7 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
-import xyz.destiall.survivalplots.hooks.Schematic;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 

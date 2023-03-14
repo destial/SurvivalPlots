@@ -1,5 +1,6 @@
 package xyz.destiall.survivalplots.hooks;
 
+import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PistonMode;
 import org.bukkit.Bukkit;
@@ -23,6 +24,9 @@ public class GriefPreventionHook {
         if (!enabled || !gp.claimsEnabledForWorld(plot.getWorld()))
             return true;
 
-        return gp.config_pistonMovement != PistonMode.CLAIMS_ONLY;
+        if (gp.config_pistonMovement == PistonMode.CLAIMS_ONLY)
+            return gp.dataStore.getClaimAt(plot.getCenter(), true, null) != null;
+
+        return true;
     }
 }

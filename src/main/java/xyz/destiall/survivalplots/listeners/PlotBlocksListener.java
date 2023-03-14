@@ -98,23 +98,9 @@ public class PlotBlocksListener implements Listener {
         SurvivalPlot fromClaim = pm.getPlotAt(fromBlock.getLocation());
         SurvivalPlot toClaim = pm.getPlotAt(toBlock.getLocation());
 
-        //into wilderness is NOT OK in creative mode worlds
-        Material materialDispensed = dispenseEvent.getItem().getType();
-        if ((materialDispensed == Material.WATER_BUCKET || materialDispensed == Material.LAVA_BUCKET) && toClaim == null) {
+        if (toClaim != fromClaim) {
             dispenseEvent.setCancelled(true);
-            return;
         }
-
-        //wilderness to wilderness is OK
-        if (fromClaim == null && toClaim == null)
-            return;
-
-        //within claim is OK
-        if (fromClaim == toClaim)
-            return;
-
-        //everything else is NOT OK
-        dispenseEvent.setCancelled(true);
     }
 
     /// Source: GriefPrevention
@@ -424,11 +410,21 @@ public class PlotBlocksListener implements Listener {
         Location location = block.getLocation();
         BlockFace face = event.getDirection();
         Vector relative = new Vector(face.getModX(), face.getModY(), face.getModZ());
+
+        for (Block block1 : event.getBlocks()) {
+            Location bloc = block1.getLocation();
+            if (pm.getPlotAt(bloc) != pm.getPlotAt(bloc.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ()))) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         SurvivalPlot plot = pm.getPlotAt(location);
+        // Piston outside of plot
         if (plot == null) {
             for (Block block1 : event.getBlocks()) {
                 Location bloc = block1.getLocation();
-                if (pm.getPlotAt(bloc) != null || pm.getPlotAt(bloc.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ())) != null) {
+                if (pm.getPlotAt(bloc) != null) {
                     event.setCancelled(true);
                     return;
                 }
@@ -443,17 +439,13 @@ public class PlotBlocksListener implements Listener {
 
         for (Block block1 : event.getBlocks()) {
             Location bloc = block1.getLocation();
-            Location newLoc = bloc.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ());
-            if (!plot.contains(bloc) || !plot.contains(newLoc)) {
-                event.setCancelled(true);
-                return;
-            }
-            if (plot != pm.getPlotAt(bloc) || plot != pm.getPlotAt(newLoc)) {
+            if (pm.getPlotAt(bloc) == null) {
                 event.setCancelled(true);
                 return;
             }
         }
-        if (pm.getPlotAt(location.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ())) != null) {
+
+        if (pm.getPlotAt(location.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ())) == null) {
             // Prevent pistons from extending if they are: bordering a plot
             // area, facing inside plot area, and not pushing any blocks
             event.setCancelled(true);
@@ -473,29 +465,46 @@ public class PlotBlocksListener implements Listener {
         Location location = block.getLocation();
         BlockFace face = event.getDirection();
         Vector relative = new Vector(face.getModX(), face.getModY(), face.getModZ());
+
+        for (Block block1 : event.getBlocks()) {
+            Location bloc = block1.getLocation();
+            if (pm.getPlotAt(bloc) != pm.getPlotAt(bloc.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ()))) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         SurvivalPlot plot = pm.getPlotAt(location);
+        // Piston outside of plot
         if (plot == null) {
             for (Block block1 : event.getBlocks()) {
                 Location bloc = block1.getLocation();
-                Location newLoc = bloc.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ());
-                if (pm.getPlotAt(bloc) != null || pm.getPlotAt(newLoc) != null) {
+                if (pm.getPlotAt(bloc) != null) {
                     event.setCancelled(true);
                     return;
                 }
             }
+            if (pm.getPlotAt(location.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ())) != null) {
+                // Prevent pistons from extending if they are: bordering a plot
+                // area, facing inside plot area, and not pushing any blocks
+                event.setCancelled(true);
+            }
             return;
         }
+
         for (Block block1 : event.getBlocks()) {
             Location bloc = block1.getLocation();
-            Location newLoc = bloc.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ());
-            if (!plot.contains(bloc) || !plot.contains(newLoc)) {
+            if (pm.getPlotAt(bloc) == null) {
                 event.setCancelled(true);
                 return;
             }
-            if (plot != pm.getPlotAt(bloc) || plot != pm.getPlotAt(newLoc)) {
-                event.setCancelled(true);
-                return;
-            }
+        }
+
+        if (pm.getPlotAt(location.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ())) == null) {
+            // Prevent pistons from extending if they are: bordering a plot
+            // area, facing inside plot area, and not pushing any blocks
+            event.setCancelled(true);
+            return;
         }
 
         if (!GriefPreventionHook.isPistonsEnabled(plot)) {

@@ -1,4 +1,4 @@
-package xyz.destiall.survivalplots.hooks;
+package xyz.destiall.survivalplots.plot;
 
 import com.sk89q.jnbt.ByteArrayTag;
 import com.sk89q.jnbt.CompoundTag;
@@ -23,7 +23,7 @@ import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
-import xyz.destiall.survivalplots.plot.SurvivalPlot;
+import xyz.destiall.survivalplots.hooks.WorldEditHook;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

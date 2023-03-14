@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
+import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import java.io.File;
