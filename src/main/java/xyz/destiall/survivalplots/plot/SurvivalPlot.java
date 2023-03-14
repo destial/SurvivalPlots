@@ -42,6 +42,7 @@ public class SurvivalPlot {
     private String description = "N/A";
     private String owner = "N/A";
     private Location center;
+    private Location home;
     private Date expiryDate;
     private Timer expiry;
 
@@ -60,7 +61,12 @@ public class SurvivalPlot {
         this(id, BoundingBox.of(section.getVector("corner1"), section.getVector("corner2")), section.getString("world"));
 
         flags.clear();
-        section.getStringList("enabled-flags").forEach(s -> flags.add(PlotFlags.valueOf(s)));
+        section.getStringList("enabled-flags").forEach(s -> {
+            PlotFlags flag = PlotFlags.getFlag(s);
+            if (flag == null)
+                return;
+            flags.add(flag);
+        });
         banned.addAll(section.getStringList("banned-members"));
         members.addAll(section.getStringList("trusted-members"));
         owner = section.getString("owner", "N/A");
@@ -223,11 +229,7 @@ public class SurvivalPlot {
         banned.add(player.getName());
         SurvivalPlotsPlugin.getInst().getPlotManager().update();
         if (contains(player.getLocation())) {
-            Location center = getCenter().clone();
-            while (contains(center)) {
-                center.setX(center.getX() + 1);
-            }
-            player.teleport(center);
+            player.teleport(getHome());
             player.sendMessage(color("&cYou have been banned from this plot!"));
         }
         return true;
@@ -303,6 +305,25 @@ public class SurvivalPlot {
             }
         }
         return center;
+    }
+
+    public Location getHome() {
+        if (home == null) {
+            home = new Location(getWorld(), bounds.getCenterX(), bounds.getMinY(), bounds.getMaxZ() + 2);
+            while (home.getBlock().getType() != Material.AIR) {
+                home.add(0, 1, 0);
+                if (home.getBlock().getRelative(BlockFace.UP).getType() != Material.AIR) {
+                    home.add(0, 1, 0);
+                }
+            }
+            home.setDirection(new Vector(0, 0, -1));
+        }
+        if (home.getBlock().getType() != Material.AIR) {
+            home = null;
+            return getHome();
+        }
+        return home;
+
     }
 
     /// Source: PlotSquared v6

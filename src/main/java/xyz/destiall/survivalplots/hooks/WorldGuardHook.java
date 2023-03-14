@@ -9,6 +9,7 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 
 public class WorldGuardHook {
     private static boolean enabled = false;
@@ -16,6 +17,8 @@ public class WorldGuardHook {
 
     public static void check() {
         enabled = Bukkit.getServer().getPluginManager().isPluginEnabled("WorldGuard");
+
+        SurvivalPlotsPlugin.getInst().getLogger().info("Hooked into WorldGuard");
     }
 
     private static RegionManager getRegionManager(Location location) {
@@ -42,6 +45,28 @@ public class WorldGuardHook {
             return true;
 
         return rm.getApplicableRegions(BukkitAdapter.asBlockVector(location)).queryState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BLOCK_BREAK) == StateFlag.State.ALLOW || canBuild(player, location);
+    }
+
+    public static boolean canUse(Player player, Location location) {
+        if (!enabled)
+            return true;
+
+        RegionManager rm = getRegionManager(location);
+        if (rm == null)
+            return true;
+
+        return rm.getApplicableRegions(BukkitAdapter.asBlockVector(location)).queryState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.USE) == StateFlag.State.ALLOW || canBuild(player, location);
+    }
+
+    public static boolean canInteract(Player player, Location location) {
+        if (!enabled)
+            return true;
+
+        RegionManager rm = getRegionManager(location);
+        if (rm == null)
+            return true;
+
+        return rm.getApplicableRegions(BukkitAdapter.asBlockVector(location)).queryState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.INTERACT) == StateFlag.State.ALLOW || canBuild(player, location);
     }
 
     public static boolean canBuild(Player player, Location location) {

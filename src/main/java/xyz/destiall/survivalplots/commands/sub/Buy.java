@@ -29,7 +29,7 @@ public class Buy extends SubCommand {
 
         if (!sender.hasPermission("svplots.own.unlimited")) {
             List<SurvivalPlot> current = plugin.getPlotManager().getOwnedPlots((Player) sender);
-            int max = 1;
+            int max = 0;
             for (PermissionAttachmentInfo perm : sender.getEffectivePermissions()) {
                 if (perm.getPermission().startsWith("svplots.own.")) {
                     try {
@@ -75,6 +75,6 @@ public class Buy extends SubCommand {
         sender.sendMessage(color("&eYou spent " + econ.getPlotCost() + " " + econ.getEconomyMaterial().name() + " to buy this plot!"));
 
         plot.setOwner(sender.getName());
-        ((Player) sender).teleport(plot.getCenter());
+        ((Player) sender).teleport(plot.getHome());
     }
 }

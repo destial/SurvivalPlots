@@ -97,6 +97,7 @@ public class PlotPlayerListener implements Listener {
         PlotPlayerManager ppm = plugin.getPlotPlayerManager();
         PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
         if (!player.canInteractEntity(plot)) {
+            e.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(e.getPlayer(), plot));
             e.setCancelled(true);
         }
     }

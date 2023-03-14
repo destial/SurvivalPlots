@@ -39,7 +39,7 @@ public class Home extends SubCommand {
             return;
         }
 
-        ((Player)sender).teleport(plot.getCenter());
+        ((Player)sender).teleport(plot.getHome());
         sender.sendMessage(Messages.Key.TELEPORT_HOME.get((Player) sender, plot));
     }
 }

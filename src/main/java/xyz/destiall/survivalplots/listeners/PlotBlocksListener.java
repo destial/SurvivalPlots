@@ -1,10 +1,18 @@
 package xyz.destiall.survivalplots.listeners;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Dispenser;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -13,22 +21,28 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockMultiPlaceEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
+import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
+import xyz.destiall.survivalplots.hooks.GriefPreventionHook;
 import xyz.destiall.survivalplots.hooks.WorldGuardHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.player.PlotPlayerManager;
@@ -66,6 +80,65 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
+    /// Source: GriefPrevention
+    //ensures dispensers can't be used to dispense a block(like water or lava) or item across a claim boundary
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onDispense(BlockDispenseEvent dispenseEvent) {
+        //from where?
+        Block fromBlock = dispenseEvent.getBlock();
+        BlockData fromData = fromBlock.getBlockData();
+        if (!(fromData instanceof Dispenser))
+            return;
+
+        Dispenser dispenser = (Dispenser) fromData;
+
+        //to where?
+        Block toBlock = fromBlock.getRelative(dispenser.getFacing());
+        PlotManager pm = plugin.getPlotManager();
+        SurvivalPlot fromClaim = pm.getPlotAt(fromBlock.getLocation());
+        SurvivalPlot toClaim = pm.getPlotAt(toBlock.getLocation());
+
+        //into wilderness is NOT OK in creative mode worlds
+        Material materialDispensed = dispenseEvent.getItem().getType();
+        if ((materialDispensed == Material.WATER_BUCKET || materialDispensed == Material.LAVA_BUCKET) && toClaim == null) {
+            dispenseEvent.setCancelled(true);
+            return;
+        }
+
+        //wilderness to wilderness is OK
+        if (fromClaim == null && toClaim == null)
+            return;
+
+        //within claim is OK
+        if (fromClaim == toClaim)
+            return;
+
+        //everything else is NOT OK
+        dispenseEvent.setCancelled(true);
+    }
+
+    /// Source: GriefPrevention
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onTreeGrow(StructureGrowEvent growEvent) {
+        Location rootLocation = growEvent.getLocation();
+        PlotManager pm = plugin.getPlotManager();
+        SurvivalPlot rootClaim = pm.getPlotAt(rootLocation);
+
+        //for each block growing
+        for (int i = 0; i < growEvent.getBlocks().size(); i++) {
+            BlockState block = growEvent.getBlocks().get(i);
+            SurvivalPlot blockClaim = pm.getPlotAt(block.getLocation());
+
+            //if it's growing into a claim
+            if (blockClaim != null) {
+                //if there's no owner for the new tree, or the owner for the new tree is different from the owner of the claim
+                if (rootClaim != blockClaim) {
+                    growEvent.getBlocks().remove(i--);
+                }
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockInteract(PlayerInteractEvent e) {
         Block block = e.getClickedBlock();
@@ -83,22 +156,37 @@ public class PlotBlocksListener implements Listener {
             PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
 
             ItemStack item = e.getItem();
-            if (item == null) {
-                if (!player.canInteractBlock(plot)) {
+            if (item != null && item.getType().name().endsWith("_AXE") && Tag.LOGS.isTagged(block.getType())) {
+                if (!player.canBuild(plot)) {
                     e.setCancelled(true);
-                    e.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(e.getPlayer(), plot));
-                    return;
+                    e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
                 }
                 return;
             }
 
-            if (!player.canBuild(plot)) {
+            if (e.isBlockInHand() && e.getPlayer().isSneaking() && !player.canBuild(plot)) {
                 e.setCancelled(true);
                 e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
                 return;
             }
 
-            if (!WorldGuardHook.canPlace(e.getPlayer(), block.getLocation()) || !WorldGuardHook.canBreak(e.getPlayer(), block.getLocation())) {
+            if (block.getType().isInteractable()) {
+                if (block.getState() instanceof Container) {
+                    if (!player.canOpenInventory(plot)) {
+                        e.setCancelled(true);
+                        e.getPlayer().sendMessage(Messages.Key.NO_OPEN_INVENTORY.get(e.getPlayer(), plot));
+                    }
+                    return;
+                }
+
+                if (!player.canInteractBlock(plot)) {
+                    e.setCancelled(true);
+                    e.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(e.getPlayer(), plot));
+                    return;
+                }
+            }
+
+            if (!WorldGuardHook.canUse(e.getPlayer(), block.getLocation())) {
                 e.setCancelled(false);
             }
         }
@@ -159,6 +247,33 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onVehicleCreate(EntityPlaceEvent event) {
+        Entity entity = event.getEntity();
+
+        if (!(entity instanceof Minecart) && !(entity instanceof Boat))
+            return;
+
+        PlotManager pm = plugin.getPlotManager();
+        SurvivalPlot plot = pm.getPlotAt(entity.getLocation());
+        if (plot == null)
+            return;
+
+        if (event.getPlayer() != null) {
+            PlotPlayerManager ppm = plugin.getPlotPlayerManager();
+            PlotPlayer player = ppm.getPlotPlayer(event.getPlayer());
+            if (!player.canInteractEntity(plot)) {
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(event.getPlayer(), plot));
+            }
+        }
+
+        if (plot.hasFlag(PlotFlags.ALLOW_VEHICLES))
+            return;
+
+        event.setCancelled(true);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onVehicleMove(VehicleMoveEvent event) {
         Vehicle entity = event.getVehicle();
@@ -206,21 +321,6 @@ public class PlotBlocksListener implements Listener {
         if (!WorldGuardHook.canPlace(e.getPlayer(), e.getBlock().getLocation())) {
             e.setCancelled(false);
             e.setBuild(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onBlockPowered(BlockRedstoneEvent e) {
-        PlotManager pm = plugin.getPlotManager();
-
-        SurvivalPlot plot = pm.getPlotAt(e.getBlock().getLocation());
-        if (plot == null)
-            return;
-
-        if (!plot.hasFlag(PlotFlags.REDSTONE_ON)) {
-            e.setNewCurrent(0);
-        } else {
-            e.setNewCurrent(e.getOldCurrent());
         }
     }
 
@@ -275,7 +375,7 @@ public class PlotBlocksListener implements Listener {
                 if (pm.getPlotAt(state.getLocation()) != null) {
                     e.setCancelled(true);
                     e.setBuild(false);
-                    e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
+                    e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), null));
                     return;
                 }
             }
@@ -316,7 +416,7 @@ public class PlotBlocksListener implements Listener {
     }
 
     /// Source code: PlotSquared v6
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPistonExtend(BlockPistonExtendEvent event) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -357,10 +457,15 @@ public class PlotBlocksListener implements Listener {
             // Prevent pistons from extending if they are: bordering a plot
             // area, facing inside plot area, and not pushing any blocks
             event.setCancelled(true);
+            return;
+        }
+
+        if (!GriefPreventionHook.isPistonsEnabled(plot)) {
+            event.setCancelled(false);
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPistonRetract(BlockPistonRetractEvent event) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -391,6 +496,10 @@ public class PlotBlocksListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
+        }
+
+        if (!GriefPreventionHook.isPistonsEnabled(plot)) {
+            event.setCancelled(false);
         }
     }
 }

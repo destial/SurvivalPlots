@@ -35,6 +35,8 @@ public class DynmapHook {
         if (plug == null)
             return;
 
+        SurvivalPlotsPlugin.getInst().getLogger().info("Hooked into dynmap");
+
         api = (DynmapAPI) plug;
         register();
     }

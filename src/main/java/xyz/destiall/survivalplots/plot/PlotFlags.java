@@ -21,8 +21,8 @@ public enum PlotFlags {
     ANIMALS_INVINCIBLE("animals_invincible", "Make animals invincible to damage"),
     PVP_ON("pvp", "Allow player combat"),
     EXPLOSIONS_ON("explosions", "Allow explosions"),
-    REDSTONE_ON("redstone", "Allow redstone"),
     SHOW_DESCRIPTION_ENTER("show_description_on_enter", "Show your plot's description when entering"),
+    ALLOW_VEHICLES("allow_vehicles", "Allow boats or minecarts to be placed"),
 
     ;
 
