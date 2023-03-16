@@ -41,6 +41,7 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         subCommands.put("unban", new Unban());
         subCommands.put("info", new Info());
         subCommands.put("home", new Home());
+        subCommands.put("tp", new Teleport());
         subCommands.put("description", new Desc());
     }
 

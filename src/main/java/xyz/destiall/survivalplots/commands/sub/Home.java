@@ -24,6 +24,11 @@ public class Home extends SubCommand {
         }
 
         List<SurvivalPlot> plots = plugin.getPlotManager().getOwnedPlots((Player) sender);
+        if (plots.size() == 0) {
+            sender.sendMessage(color("&cYou have no plots!"));
+            return;
+        }
+
         SurvivalPlot plot = plots.get(0);
         if (args.length > 0) {
             try {
@@ -32,11 +37,6 @@ public class Home extends SubCommand {
                 sender.sendMessage(color("&cInvalid plot number!"));
                 return;
             }
-        }
-
-        if (plot == null) {
-            sender.sendMessage(color("&cYou have no plots!"));
-            return;
         }
 
         ((Player)sender).teleport(plot.getHome());

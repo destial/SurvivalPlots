@@ -66,7 +66,9 @@ public class Messages {
             message = message.replace("{plotid}", ""+plot.getId());
             message = message.replace("{plotowner}", ""+plot.getRawOwner());
             message = message.replace("{plotcost}", plot.getOwner() == null ? ""+SurvivalPlotsPlugin.getInst().getEconomyManager().getPlotCost() : "N/A");
+            message = message.replace("{plotresetcost}", plot.getOwner() == null ? ""+SurvivalPlotsPlugin.getInst().getEconomyManager().getPlotReset() : "N/A");
             message = message.replace("{plotmembers}", String.join(", ", plot.getMembers()));
+            message = message.replace("{plotbanned}", String.join(", ", plot.getBanned()));
             message = message.replace("{plotdescription}", plot.getDescription());
         }
 
@@ -81,6 +83,7 @@ public class Messages {
         BANNED_FROM_PLOT_TITLE("&cBanned!"),
         BANNED_FROM_PLOT_SUBTITLE("&c{plotowner} has banned you from this plot!"),
         TELEPORT_HOME("&6Teleported to plot"),
+        TELEPORT_OTHERS("&6Teleported to {plotowner}'s plot"),
         NO_BUILD("&cYou do not have permission to build here!"),
         NO_INTERACT("&cYou do not have permission to interact here!"),
         NO_OPEN_INVENTORY("&cYou do not have permission to open this!"),
