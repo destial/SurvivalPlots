@@ -17,6 +17,7 @@ import xyz.destiall.survivalplots.plot.PlotManager;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 public final class SurvivalPlotsPlugin extends JavaPlugin {
     private PlotPlayerManager plotPlayerManager;
@@ -95,6 +96,56 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
             }
         }
         return Duration.of(Integer.parseInt(numberString.toString()), unit);
+    }
+
+    public static String relativeDate(Date end) {
+
+        Date start = new Date();
+        // Calculate time difference
+        // in milliseconds
+        long difference_In_Time
+                = end.getTime() - start.getTime();
+
+        String format = "";
+
+
+        long difference_In_Days
+                = (difference_In_Time
+                / (1000L * 60 * 60 * 24))
+                % 365;
+
+        if (difference_In_Days > 0) {
+            format += difference_In_Days + " days ";
+        }
+
+        long difference_In_Hours
+                = (difference_In_Time
+                / (1000L * 60 * 60))
+                % 24;
+
+        if (difference_In_Hours > 0) {
+            format += difference_In_Hours + " hrs ";
+        }
+
+        long difference_In_Minutes
+                = (difference_In_Time
+                / (1000L * 60))
+                % 60;
+
+        if (difference_In_Minutes > 0) {
+            format += difference_In_Minutes + " mins ";
+        }
+
+        long difference_In_Seconds
+                = (difference_In_Time
+                / 1000L)
+                % 60;
+
+        if (difference_In_Seconds > 0) {
+            format += difference_In_Seconds + " s";
+        }
+
+        return format.trim();
     }
 
     public static BukkitTask runAsync(Runnable runnable) {

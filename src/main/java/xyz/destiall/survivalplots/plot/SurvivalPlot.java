@@ -117,6 +117,9 @@ public class SurvivalPlot {
         }, expiryDate);
     }
 
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
 
     public void disableExpiryTimer() {
         if (expiry != null)

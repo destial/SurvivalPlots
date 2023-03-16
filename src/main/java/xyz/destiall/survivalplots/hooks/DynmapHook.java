@@ -125,6 +125,7 @@ public class DynmapHook {
         v = v.replace("%members%", plot.getMembers().size() > 0 ? String.join(", ", plot.getMembers()) : "None");
         v = v.replace("%banned%", plot.getBanned().size() > 0 ? String.join(", ", plot.getBanned()) : "None");
         v = v.replace("%flags%", plot.getFlags().size() > 0 ? plot.getFlags().stream().map(PlotFlags::getName).collect(Collectors.joining(", ")) : "None");
+        v = v.replace("%expiry%", plot.getExpiryDate() != null ? SurvivalPlotsPlugin.relativeDate(plot.getExpiryDate()) : "N/A");
         return v;
     }
 
