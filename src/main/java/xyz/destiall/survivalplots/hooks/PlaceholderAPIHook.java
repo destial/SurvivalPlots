@@ -80,7 +80,7 @@ public class PlaceholderAPIHook {
             if (plot == null)
                 return "null";
 
-            switch (params.toLowerCase()) {
+            switch (params.toLowerCase().substring(params.indexOf("_") + 1)) {
                 case "owner":
                     return plot.getRawOwner();
                 case "description":
