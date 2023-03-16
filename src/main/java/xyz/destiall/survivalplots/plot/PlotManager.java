@@ -71,15 +71,18 @@ public class PlotManager {
         return null;
     }
 
-    public List<SurvivalPlot> getOwnedPlots(Player owner) {
-        PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer(owner.getName());
+    public List<SurvivalPlot> getOwnedPlots(String name) {
         List<SurvivalPlot> owned = new ArrayList<>();
         for (SurvivalPlot plot : plots) {
-            if (player.isOwner(plot)) {
+            if (plot.getRawOwner().equalsIgnoreCase(name)) {
                 owned.add(plot);
             }
         }
         return owned;
+    }
+
+    public List<SurvivalPlot> getOwnedPlots(Player owner) {
+        return getOwnedPlots(owner.getName());
     }
 
     public SurvivalPlot createPlot(World world, BoundingBox bounds) {
@@ -112,7 +115,11 @@ public class PlotManager {
             saveToFile();
             File plotsBackup = new File(SurvivalPlotsPlugin.getPlugin(SurvivalPlotsPlugin.class).getDataFolder(), "backups" + File.separator + plot.getId() + File.separator);
             if (plotsBackup.exists()) {
-                SurvivalPlotsPlugin.runAsync(() -> delete(plotsBackup));
+                if (plugin.getConfig().getBoolean("async-file-operations")) {
+                    SurvivalPlotsPlugin.runAsync(() -> delete(plotsBackup));
+                } else {
+                    delete(plotsBackup);
+                }
             }
         }
         return true;

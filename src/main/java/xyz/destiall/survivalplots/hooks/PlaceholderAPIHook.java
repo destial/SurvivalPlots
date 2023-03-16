@@ -2,28 +2,21 @@ package xyz.destiall.survivalplots.hooks;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
-import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 public class PlaceholderAPIHook {
-    private static boolean enabled = false;
     private static PAPIHook hook;
 
     public static void check() {
-        enabled = Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI");
-
-        if (!enabled)
+        if (!Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"))
             return;
 
         hook = new PAPIHook();
@@ -57,15 +50,20 @@ public class PlaceholderAPIHook {
 
         @Override
         public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
+            return onRequest(player, params);
+        }
+
+        @Override
+        public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
             PlotManager pm = SurvivalPlotsPlugin.getInst().getPlotManager();
             if (params.equalsIgnoreCase("plots")) {
-                List<SurvivalPlot> owned = pm.getOwnedPlots(player);
+                List<SurvivalPlot> owned = pm.getOwnedPlots(player.getName());
                 return "" + owned.size();
             }
 
             SurvivalPlot plot = null;
-            if (params.toLowerCase().startsWith("currentplot_")) {
-                plot = pm.getPlotAt(player.getLocation());
+            if (player.isOnline() && params.toLowerCase().startsWith("currentplot_")) {
+                plot = pm.getPlotAt(((Player) player).getLocation());
             } else if (params.contains("_")) {
                 int number;
                 try {
