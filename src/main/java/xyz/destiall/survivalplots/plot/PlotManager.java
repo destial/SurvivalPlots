@@ -53,7 +53,7 @@ public class PlotManager {
                 plots.add(plot);
             }
 
-            plugin.getLogger().info("Loaded plots [" + plots.stream().map(p -> ""+p.getId()).collect(Collectors.joining(", ")) + "] (" + plots.size() + " in size)");
+            plugin.info("Loaded plots [" + plots.stream().map(p -> ""+p.getId()).collect(Collectors.joining(", ")) + "] (" + plots.size() + " in size)");
         }
 
         plots.sort(Comparator.comparingInt(SurvivalPlot::getId));

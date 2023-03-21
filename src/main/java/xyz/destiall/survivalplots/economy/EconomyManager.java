@@ -23,8 +23,8 @@ public class EconomyManager {
         plotReset = plugin.getConfig().getInt("plot-reset", 5);
         economyMaterial = Material.getMaterial(plugin.getConfig().getString("plot-money", "DIAMOND"));
         if (economyMaterial == null) {
-            plugin.getLogger().info("Unable to parse plot-money: " + plugin.getConfig().getString("plot-money"));
-            plugin.getLogger().info("Defaulting to DIAMOND...");
+            plugin.warning("Unable to parse plot-money: " + plugin.getConfig().getString("plot-money"))
+                  .warning("Defaulting to DIAMOND...");
             economyMaterial = Material.DIAMOND;
         }
     }

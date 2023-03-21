@@ -18,7 +18,7 @@ public class WorldGuardHook {
     public static void check() {
         enabled = Bukkit.getServer().getPluginManager().isPluginEnabled("WorldGuard");
 
-        SurvivalPlotsPlugin.getInst().getLogger().info("Hooked into WorldGuard");
+        SurvivalPlotsPlugin.getInst().info("Hooked into WorldGuard");
     }
 
     private static RegionManager getRegionManager(Location location) {

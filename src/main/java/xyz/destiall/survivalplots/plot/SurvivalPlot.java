@@ -104,7 +104,12 @@ public class SurvivalPlot {
                 WorldEditHook.backupPlot(SurvivalPlot.this, getOwner().getName());
                 Schematic def = WorldEditHook.loadPlot(SurvivalPlot.this, "default");
                 if (def != null) {
-                    SurvivalPlot.this.loadSchematic(def);
+                    if (!SurvivalPlot.this.loadSchematic(def)) {
+                        expiryDate = new Date(expiryDate.getTime() + 1000 * 60);
+                        updateExpiry();
+                        SurvivalPlotsPlugin.getInst().getPlotManager().update();
+                        return;
+                    }
                 }
                 setExpiryDate(null);
                 disableExpiryTimer();
@@ -329,14 +334,18 @@ public class SurvivalPlot {
     }
 
     /// Source: PlotSquared v6
-    public void loadSchematic(Schematic schematic) {
+    public boolean loadSchematic(Schematic schematic) {
         Clipboard clipboard = schematic.getClipboard();
         if (clipboard == null && schematic.getAsyncClipboard() == null)
-            return;
+            return false;
 
         if (clipboard == null) {
-            schematic.getAsyncClipboard().whenComplete((clip, err) -> loadSchematic(schematic));
-            return;
+            try {
+                return schematic.getAsyncClipboard().thenApply(clip -> loadSchematic(schematic)).get();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         getCenter().getWorld().getNearbyEntities(bounds).forEach(en -> {
@@ -353,12 +362,17 @@ public class SurvivalPlot {
 
         CuboidRegion region = WorldEditHook.adapt(getWorld(), getBounds());
         boolean sizeMismatch =
-                ((region.getMaximumPoint().getX() - region.getMinimumPoint().getX() + 1) < WIDTH) ||
-                ((region.getMaximumPoint().getZ() - region.getMinimumPoint().getZ() + 1) < LENGTH) ||
+                ((region.getMaximumPoint().getX() - region.getMinimumPoint().getX()) < WIDTH) ||
+                ((region.getMaximumPoint().getZ() - region.getMinimumPoint().getZ()) < LENGTH) ||
                 (HEIGHT > worldHeight);
         if (sizeMismatch) {
-            SurvivalPlotsPlugin.getPlugin(SurvivalPlotsPlugin.class).getLogger().warning("Schematic size mismatch! Skipping...");
-            return;
+            SurvivalPlotsPlugin.getInst()
+                    .warning("Schematic size mismatch!")
+                    .warning("Region X:" + (region.getMaximumPoint().getX() - region.getMinimumPoint().getX()) + " Dimension X:" + (WIDTH))
+                    .warning("Region Z:" + (region.getMaximumPoint().getZ() - region.getMinimumPoint().getZ()) + " Dimension Z:" + (LENGTH))
+                    .warning("World Height:" + (worldHeight) + " Dimension Y:" + (HEIGHT))
+                    .warning("Skipping...");
+            return false;
         }
 
         final int p1x = region.getMinimumPoint().getX();
@@ -380,5 +394,7 @@ public class SurvivalPlot {
                 }
             });
         }
+
+        return true;
     }
 }

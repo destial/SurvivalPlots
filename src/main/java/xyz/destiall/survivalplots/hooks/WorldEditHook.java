@@ -54,14 +54,14 @@ public class WorldEditHook {
         BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
 
         Schematic schematic = new Schematic(plot, clipboard);
-        SurvivalPlotsPlugin.getInst().getLogger().info("Backing up plot " + plot.getId() + ": " + name + "...");
+        SurvivalPlotsPlugin.getInst().info("Backing up plot " + plot.getId() + ": " + name + "...");
         schematic.getCompoundTag(plot).whenComplete((tag, err) -> {
             if (err != null) {
                 err.printStackTrace();
                 return;
             }
             try {
-                SurvivalPlotsPlugin.getInst().getLogger().info("Backed-up plot " + plot.getId() + ": " + name);
+                SurvivalPlotsPlugin.getInst().info("Backed-up plot " + plot.getId() + ": " + name);
                 schematic.save(tag, new File(plotsBackup, name + ".schem"));
             } catch (Exception e) {
                 e.printStackTrace();

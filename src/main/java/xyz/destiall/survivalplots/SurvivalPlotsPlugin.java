@@ -19,6 +19,7 @@ import xyz.destiall.survivalplots.plot.PlotManager;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.logging.Logger;
 
 public final class SurvivalPlotsPlugin extends JavaPlugin {
     private PlotPlayerManager plotPlayerManager;
@@ -59,7 +60,12 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
     }
 
     public void reload() {
-        onDisable();
+        HandlerList.unregisterAll(this);
+
+        plotManager.update();
+        plotManager.disable();
+        getCommand("svplots").setExecutor(null);
+
         onEnable();
     }
 
@@ -77,6 +83,16 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
 
     public static SurvivalPlotsPlugin getInst() {
         return INST;
+    }
+
+    public SurvivalPlotsPlugin info(String msg) {
+        getLogger().info(msg);
+        return this;
+    }
+
+    public SurvivalPlotsPlugin warning(String msg) {
+        getLogger().warning(msg);
+        return this;
     }
 
     public static Duration getDuration(String s) {

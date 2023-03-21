@@ -19,6 +19,8 @@ public class PlaceholderAPIHook {
         if (!Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"))
             return;
 
+        SurvivalPlotsPlugin.getInst().info("Hooked into PlaceholderAPI");
+
         hook = new PAPIHook();
         hook.register();
     }

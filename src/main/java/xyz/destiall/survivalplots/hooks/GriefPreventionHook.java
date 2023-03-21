@@ -1,6 +1,5 @@
 package xyz.destiall.survivalplots.hooks;
 
-import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PistonMode;
 import org.bukkit.Bukkit;
@@ -16,7 +15,7 @@ public class GriefPreventionHook {
         if (!enabled)
             return;
 
-        SurvivalPlotsPlugin.getInst().getLogger().info("Hooked into GriefPrevention");
+        SurvivalPlotsPlugin.getInst().info("Hooked into GriefPrevention");
         gp = GriefPrevention.getPlugin(GriefPrevention.class);
     }
 

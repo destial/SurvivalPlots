@@ -47,18 +47,22 @@ public class Sell extends SubCommand {
         }
 
         Runnable afterConfirmation = () -> {
-            Bank bank = plugin.getEconomyManager().getBank((Player) sender);
-            int cost = plugin.getEconomyManager().getPlotCost() / 2;
-            bank.deposit(cost);
-            sender.sendMessage(color("&aRefunded back " + cost + " " + plugin.getEconomyManager().getEconomyMaterial().name()));
-
             WorldEditHook.backupPlot(plot, plot.getOwner().getName());
             sender.sendMessage(color("&aSuccessfully backed-up plot " + plot.getId()));
 
             Schematic def = WorldEditHook.loadPlot(plot, "default");
             if (def != null) {
-                plot.loadSchematic(def);
-                sender.sendMessage(color("&aSuccessfully reset plot " + plot.getId()));
+                if (plot.loadSchematic(def)) {
+                    sender.sendMessage(color("&aSuccessfully reset plot " + plot.getId()));
+                    Bank bank = plugin.getEconomyManager().getBank((Player) sender);
+                    int cost = plugin.getEconomyManager().getPlotCost() / 2;
+                    sender.sendMessage(color("&aRefunded back " + cost + " " + plugin.getEconomyManager().getEconomyMaterial().name()));
+
+                    bank.deposit(cost);
+                } else {
+                    sender.sendMessage(color("&cUnable to reset plot " + plot.getId()));
+                    return;
+                }
             }
 
             plot.getMembers().clear();

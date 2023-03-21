@@ -43,8 +43,11 @@ public class AdminReset extends SubCommand {
 
             Schematic def = WorldEditHook.loadPlot(plot, "default");
             if (def != null) {
-                plot.loadSchematic(def);
-                sender.sendMessage(color("&aSuccessfully reset plot " + plot.getId()));
+                if (plot.loadSchematic(def)) {
+                    sender.sendMessage(color("&aSuccessfully reset plot " + plot.getId()));
+                } else {
+                    sender.sendMessage(color("&cUnable to reset plot " + plot.getId()));
+                }
             }
         };
 
