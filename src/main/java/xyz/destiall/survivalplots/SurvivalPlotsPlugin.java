@@ -8,6 +8,7 @@ import xyz.destiall.survivalplots.commands.PlotCommand;
 import xyz.destiall.survivalplots.economy.EconomyManager;
 import xyz.destiall.survivalplots.hooks.DynmapHook;
 import xyz.destiall.survivalplots.hooks.GriefPreventionHook;
+import xyz.destiall.survivalplots.hooks.PartiesHook;
 import xyz.destiall.survivalplots.hooks.PlaceholderAPIHook;
 import xyz.destiall.survivalplots.hooks.WorldGuardHook;
 import xyz.destiall.survivalplots.listeners.PlotBlocksListener;
@@ -19,7 +20,6 @@ import xyz.destiall.survivalplots.plot.PlotManager;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.logging.Logger;
 
 public final class SurvivalPlotsPlugin extends JavaPlugin {
     private PlotPlayerManager plotPlayerManager;
@@ -41,10 +41,13 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlotPlayerListener(this), this);
 
         getCommand("svplots").setExecutor(new PlotCommand(this));
+
         WorldGuardHook.check();
         DynmapHook.check();
         GriefPreventionHook.check();
         PlaceholderAPIHook.check();
+        PartiesHook.check();
+
         Messages.init(this);
     }
 

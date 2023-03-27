@@ -3,7 +3,7 @@ version: '${project.version}'
 main: xyz.destiall.survivalplots.SurvivalPlotsPlugin
 api-version: 1.19
 depend: [ WorldEdit ]
-softdepend: [ WorldGuard, FastAsyncWorldEdit, dynmap, GriefPrevention, PlaceholderAPI ]
+softdepend: [ WorldGuard, FastAsyncWorldEdit, dynmap, GriefPrevention, PlaceholderAPI, Parties ]
 authors: [ destiall ]
 description: Make plots in your survival world
 load: POSTWORLD

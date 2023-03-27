@@ -366,13 +366,16 @@ public class SurvivalPlot {
                 ((region.getMaximumPoint().getZ() - region.getMinimumPoint().getZ()) < LENGTH) ||
                 (HEIGHT > worldHeight);
         if (sizeMismatch) {
+            boolean ignore = SurvivalPlotsPlugin.getInst().getConfig().getBoolean("ignore-size-mismatch", true);
             SurvivalPlotsPlugin.getInst()
                     .warning("Schematic size mismatch!")
                     .warning("Region X:" + (region.getMaximumPoint().getX() - region.getMinimumPoint().getX()) + " Dimension X:" + (WIDTH))
                     .warning("Region Z:" + (region.getMaximumPoint().getZ() - region.getMinimumPoint().getZ()) + " Dimension Z:" + (LENGTH))
                     .warning("World Height:" + (worldHeight) + " Dimension Y:" + (HEIGHT))
-                    .warning("Skipping...");
-            return false;
+                    .warning(ignore ? "Ignoring warning due to config..." : "Skipping...");
+
+            if (!ignore)
+                return false;
         }
 
         final int p1x = region.getMinimumPoint().getX();

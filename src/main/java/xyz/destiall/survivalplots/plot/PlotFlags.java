@@ -24,6 +24,8 @@ public enum PlotFlags {
     SHOW_DESCRIPTION_ENTER("show_description_on_enter", "Show your plot's description when entering"),
     ALLOW_VEHICLES("allow_vehicles", "Allow boats or minecarts to be placed"),
 
+    PARTY_TRUST("party_trust", "Allow party members to have the same permission as trusted members")
+
     ;
 
     private final String desc;

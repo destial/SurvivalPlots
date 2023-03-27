@@ -3,3 +3,4 @@ plot-reset: 5
 plot-money: DIAMOND
 plot-expiry: 30d
 async-file-operations: true
+ignore-size-mismatch: false

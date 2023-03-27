@@ -3,6 +3,7 @@ package xyz.destiall.survivalplots.player;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import xyz.destiall.survivalplots.hooks.PartiesHook;
 import xyz.destiall.survivalplots.plot.PlotFlags;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
@@ -37,6 +38,8 @@ public class PlotPlayer {
     }
 
     public boolean isMember(SurvivalPlot plot) {
+        if (plot.hasFlag(PlotFlags.PARTY_TRUST) && PartiesHook.sameParty(plot.getOwner().getPlayer(), getPlayer()))
+            return true;
         return plot.getMembers().contains(name);
     }
 
