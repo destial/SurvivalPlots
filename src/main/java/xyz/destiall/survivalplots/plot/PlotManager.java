@@ -112,10 +112,10 @@ public class PlotManager {
             plotsConfig.set("plots." + plot.getId(), null);
             plot.disableExpiryTimer();
             saveToFile();
-            File plotsBackup = new File(SurvivalPlotsPlugin.getPlugin(SurvivalPlotsPlugin.class).getDataFolder(), "backups" + File.separator + plot.getId() + File.separator);
+            File plotsBackup = new File(SurvivalPlotsPlugin.getInst().getDataFolder(), "backups" + File.separator + plot.getId() + File.separator);
             if (plotsBackup.exists()) {
                 if (plugin.getConfig().getBoolean("async-file-operations")) {
-                    SurvivalPlotsPlugin.runAsync(() -> delete(plotsBackup));
+                    SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> delete(plotsBackup), plot.getCenter());
                 } else {
                     delete(plotsBackup);
                 }
@@ -147,7 +147,7 @@ public class PlotManager {
 
     public void saveToFile() {
         if (plugin.getConfig().getBoolean("async-file-operations")) {
-            SurvivalPlotsPlugin.runAsync(() -> {
+            SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> {
                 try {
                     plotsConfig.save(plotsFile);
                 } catch (Exception e) {
