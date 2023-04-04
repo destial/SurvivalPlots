@@ -11,10 +11,10 @@ import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.economy.Bank;
 import xyz.destiall.survivalplots.economy.EconomyManager;
-import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotManager;
+import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import static xyz.destiall.survivalplots.commands.PlotCommand.color;
@@ -46,7 +46,7 @@ public class Reset extends SubCommand {
         }
         final EconomyManager econ = plugin.getEconomyManager();
 
-        Runnable afterConfirmation = () -> {
+        player.setConfirmation(() -> {
             Bank account = econ.getBank((Player) sender);
 
             if (!account.withdraw(econ.getPlotReset())) {
@@ -64,14 +64,17 @@ public class Reset extends SubCommand {
             if (def != null) {
                 if (plot.loadSchematic(def)) {
                     sender.sendMessage(color("&aSuccessfully reset plot " + plot.getId()));
+                    try {
+                        ((Player) sender).teleportAsync(plot.getHome());
+                    } catch (Exception e) {
+                        ((Player) sender).teleport(plot.getHome());
+                    }
                 } else {
                     sender.sendMessage(color("&cUnable to reset plot " + plot.getId()));
                     account.deposit(econ.getPlotReset());
                 }
             }
-        };
-
-        player.setConfirmation(afterConfirmation);
+        });
         TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm resetting your plot."));
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&aClick to confirm"))));
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot confirm"));

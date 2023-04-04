@@ -42,7 +42,7 @@ public class Untrust extends SubCommand {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(color("&cYou need to mention a player to untrust!"));
+            sender.sendMessage(color("&cUsage: /plot untrust [player]"));
             return;
         }
 
@@ -73,6 +73,8 @@ public class Untrust extends SubCommand {
             return super.tab(sender, args);
         }
 
-        return plot.getMembers().stream().filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        return plot.getMembers().stream()
+                .filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

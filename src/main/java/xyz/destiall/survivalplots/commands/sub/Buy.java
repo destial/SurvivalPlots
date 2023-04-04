@@ -75,6 +75,10 @@ public class Buy extends SubCommand {
         sender.sendMessage(color("&eYou spent " + econ.getPlotCost() + " " + econ.getEconomyMaterial().name() + " to buy this plot!"));
 
         plot.setOwner(sender.getName());
-        ((Player) sender).teleport(plot.getHome());
+        try {
+            ((Player) sender).teleportAsync(plot.getHome());
+        } catch (Exception e) {
+            ((Player) sender).teleport(plot.getHome());
+        }
     }
 }

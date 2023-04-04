@@ -8,7 +8,26 @@ import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
-import xyz.destiall.survivalplots.commands.sub.*;
+import xyz.destiall.survivalplots.commands.sub.AdminCreate;
+import xyz.destiall.survivalplots.commands.sub.AdminDelete;
+import xyz.destiall.survivalplots.commands.sub.AdminReload;
+import xyz.destiall.survivalplots.commands.sub.AdminResell;
+import xyz.destiall.survivalplots.commands.sub.AdminReset;
+import xyz.destiall.survivalplots.commands.sub.Ban;
+import xyz.destiall.survivalplots.commands.sub.Buy;
+import xyz.destiall.survivalplots.commands.sub.Confirm;
+import xyz.destiall.survivalplots.commands.sub.Desc;
+import xyz.destiall.survivalplots.commands.sub.Flags;
+import xyz.destiall.survivalplots.commands.sub.Fly;
+import xyz.destiall.survivalplots.commands.sub.Home;
+import xyz.destiall.survivalplots.commands.sub.Info;
+import xyz.destiall.survivalplots.commands.sub.Reset;
+import xyz.destiall.survivalplots.commands.sub.Sell;
+import xyz.destiall.survivalplots.commands.sub.Teleport;
+import xyz.destiall.survivalplots.commands.sub.Transfer;
+import xyz.destiall.survivalplots.commands.sub.Trust;
+import xyz.destiall.survivalplots.commands.sub.Unban;
+import xyz.destiall.survivalplots.commands.sub.Untrust;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +48,7 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         subCommands.put("admindelete", new AdminDelete());
         subCommands.put("adminreset", new AdminReset());
         subCommands.put("adminreload", new AdminReload());
+        subCommands.put("adminresell", new AdminResell());
 
         subCommands.put("ban", new Ban());
         subCommands.put("buy", new Buy());
@@ -43,6 +63,8 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         subCommands.put("home", new Home());
         subCommands.put("tp", new Teleport());
         subCommands.put("description", new Desc());
+        subCommands.put("fly", new Fly());
+        subCommands.put("transfer", new Transfer());
     }
 
     @Override
@@ -82,9 +104,8 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         }
 
         SubCommand sub = subCommands.get(args[0].toLowerCase());
-        if (sub == null) {
+        if (sub == null)
             return Collections.emptyList();
-        }
 
         return sub.tab(sender, Arrays.copyOfRange(args, 1, args.length));
     }

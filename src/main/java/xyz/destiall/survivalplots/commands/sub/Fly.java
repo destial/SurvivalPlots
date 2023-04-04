@@ -1,21 +1,18 @@
 package xyz.destiall.survivalplots.commands.sub;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
-import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import static xyz.destiall.survivalplots.commands.PlotCommand.color;
 
-public class Desc extends SubCommand {
-    public Desc() {
-        super("user");
+public class Fly extends SubCommand {
+    public Fly() {
+        super("user.fly");
     }
 
     @Override
@@ -25,29 +22,27 @@ public class Desc extends SubCommand {
             return;
         }
 
-        Location location = ((Player) sender).getLocation();
-        PlotManager pm = plugin.getPlotManager();
-        SurvivalPlot plot = pm.getPlotAt(location);
+        SurvivalPlot plot = plugin.getPlotManager().getPlotAt(((Player) sender).getLocation());
         if (plot == null) {
             sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
             return;
         }
 
         PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
-        if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_EDIT_DESCRIPTION) || !player.isMember(plot))) {
+        if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_FLY) || !player.isMember(plot))) {
             sender.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get((Player) sender, plot));
             return;
         }
 
-        if (args.length == 0) {
-            sender.sendMessage(color("&cUsage: /plot description [description]"));
-            return;
+        Player p = (Player) sender;
+        if (p.getAllowFlight()) {
+            p.setFlying(false);
+            p.setAllowFlight(false);
+        } else {
+            p.setAllowFlight(true);
+            p.setFlying(true);
         }
 
-        String desc = ChatColor.stripColor(color(String.join(" ", args)));
-        plot.setDescription(desc);
-
-        sender.sendMessage(color("&aSet your plot's description to: "));
-        sender.sendMessage(color("&6" + plot.getDescription()));
+        sender.sendMessage(color(((Player) sender).isFlying() ? "&aYou can now fly in this plot!" : "&aYou have stopped flying in this plot!"));
     }
 }

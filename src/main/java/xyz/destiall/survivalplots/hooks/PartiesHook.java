@@ -5,6 +5,7 @@ import com.alessiodp.parties.api.interfaces.PartiesAPI;
 import com.alessiodp.parties.api.interfaces.Party;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 
 public class PartiesHook {
     private static boolean enabled = false;
@@ -14,6 +15,7 @@ public class PartiesHook {
         enabled = Bukkit.getServer().getPluginManager().isPluginEnabled("Parties");
         if (!enabled) return;
 
+        SurvivalPlotsPlugin.getInst().info("Hooked into Parties");
         api = Parties.getApi();
     }
 

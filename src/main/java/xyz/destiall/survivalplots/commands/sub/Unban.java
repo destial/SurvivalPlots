@@ -42,7 +42,7 @@ public class Unban extends SubCommand {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(color("&cYou need to mention a player to ban!"));
+            sender.sendMessage(color("&cUsage: /plot unban [player]"));
             return;
         }
 
@@ -73,6 +73,8 @@ public class Unban extends SubCommand {
             return super.tab(sender, args);
         }
 
-        return plot.getBanned().stream().filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        return plot.getBanned().stream()
+                .filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

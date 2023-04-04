@@ -38,6 +38,11 @@ public class PlotPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent e) {
         PlotManager pm = plugin.getPlotManager();
+        if (!e.getPlayer().hasPermission("svplots.user.fly.bypass") && e.getPlayer().getAllowFlight()) {
+            e.getPlayer().sendMessage(color("&cYour flight has been disabled because you left the game!"));
+            e.getPlayer().setAllowFlight(false);
+            e.getPlayer().setFlying(false);
+        }
         pm.getOwnedPlots(e.getPlayer()).forEach(SurvivalPlot::updateExpiry);
     }
 
@@ -50,12 +55,21 @@ public class PlotPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent e) {
         PlotManager pm = plugin.getPlotManager();
+        PlotPlayerManager ppm = plugin.getPlotPlayerManager();
+        PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
         SurvivalPlot plot = pm.getPlotAt(e.getTo());
+        SurvivalPlot before = pm.getPlotAt(e.getFrom());
+        if (before != null && before != plot && (before.getOwner() == player || (before.hasFlag(PlotFlags.MEMBER_FLY) && player.isMember(before)))) {
+            if (!e.getPlayer().hasPermission("svplots.user.fly.bypass") && e.getPlayer().getAllowFlight()) {
+                e.getPlayer().sendMessage(color("&cYour flight has been disabled because you left the plot!"));
+                e.getPlayer().setAllowFlight(false);
+                e.getPlayer().setFlying(false);
+            }
+        }
+
         if (plot == null)
             return;
 
-        PlotPlayerManager ppm = plugin.getPlotPlayerManager();
-        PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
         if (player.isBanned(plot)) {
             e.setCancelled(true);
             BaseComponent[] component = TextComponent.fromLegacyText(Messages.Key.BANNED_FROM_PLOT_TITLE.get(e.getPlayer(), plot));

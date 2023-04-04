@@ -89,7 +89,7 @@ public class DynmapHook {
 
     private static void startUpdater() {
         Map<Integer, AreaMarker> areaMarkers = new HashMap<>();
-        SurvivalPlotsPlugin.repeatAsync(() -> {
+        SurvivalPlotsPlugin.getInst().getScheduler().runTaskTimerAsync(() -> {
             List<Integer> notUpdated = new ArrayList<>(areaMarkers.keySet());
             for (SurvivalPlot plot : SurvivalPlotsPlugin.getInst().getPlotManager().getAllPlots()) {
                 AreaMarker areaMarker = areaMarkers.get(plot.getId());

@@ -29,7 +29,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.zip.GZIPOutputStream;
 
@@ -62,7 +65,7 @@ public class Schematic {
         if (format != null) {
             if (SurvivalPlotsPlugin.getInst().getConfig().getBoolean("async-file-operations")) {
                 board = new CompletableFuture<>();
-                SurvivalPlotsPlugin.runAsync(() -> {
+                SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> {
                     try (ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()))) {
                         clipboard = reader.read();
                         board.complete(clipboard);
@@ -82,7 +85,7 @@ public class Schematic {
 
     public void save(CompoundTag tag, File file) {
         if (SurvivalPlotsPlugin.getInst().getConfig().getBoolean("async-file-operations")) {
-            SurvivalPlotsPlugin.runAsync(() -> {
+            SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> {
                 try (NBTOutputStream nbtStream = new NBTOutputStream(new GZIPOutputStream(Files.newOutputStream(file.toPath())))) {
                     nbtStream.writeNamedTag("Schematic", tag);
                 } catch (Exception e) {
@@ -158,7 +161,7 @@ public class Schematic {
 
     public @NonNull CompletableFuture<CompoundTag> getCompoundTag(final SurvivalPlot plot) {
         CompletableFuture<CompoundTag> completableFuture = new CompletableFuture<>();
-        SurvivalPlotsPlugin.runAsync(() -> {
+        SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> {
             // All positions
             CuboidRegion aabb = WorldEditHook.getRegion(plot);
 
@@ -174,7 +177,7 @@ public class Schematic {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream(width * height * length);
             ByteArrayOutputStream biomeBuffer = new ByteArrayOutputStream(width * length);
             // Queue
-            SurvivalPlotsPlugin.runAsync(() -> {
+            SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> {
                 final BlockVector3 minimum = aabb.getMinimumPoint();
                 final BlockVector3 maximum = aabb.getMaximumPoint();
 
@@ -203,7 +206,7 @@ public class Schematic {
                                     // note that current(X/Y/Z) aren't incremented, so the same position
                                     // as *right now* will be visited again
                                     if (System.currentTimeMillis() - start > 40) {
-                                        SurvivalPlotsPlugin.schedule(this, 1L);
+                                        SurvivalPlotsPlugin.getInst().getScheduler().runTaskLater(this, 1L);
                                         return;
                                     }
                                     int relativeX = currentX - minX;
@@ -268,14 +271,14 @@ public class Schematic {
                             }
                             currentZ = minZ; // reset manually as not using local variable
                         }
-                        SurvivalPlotsPlugin.runAsync(() -> {
+                        SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> {
                             writeSchematicData(schematic, palette, biomePalette, tileEntities, buffer, biomeBuffer);
                             completableFuture.complete(new CompoundTag(schematic));
-                        });
+                        }, plot.getCenter());
                     }
                 }.run();
-            });
-        });
+            }, plot.getCenter());
+        }, plot.getCenter());
         return completableFuture;
     }
 

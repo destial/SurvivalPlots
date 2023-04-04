@@ -17,7 +17,7 @@ public class PlotPlayerManager {
 
     public PlotPlayer getPlotPlayer(String name) {
         if (players.putIfAbsent(name, new PlotPlayer(name)) == null) {
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> players.remove(name), 60 * 20);
+            plugin.getScheduler().runTaskLater(() -> players.remove(name), 60 * 20);
         }
         return players.get(name);
     }

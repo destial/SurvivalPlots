@@ -90,6 +90,9 @@ public class Flags extends SubCommand {
 
     @Override
     public List<String> tab(CommandSender sender, String[] args) {
-        return Arrays.stream(PlotFlags.values()).map(PlotFlags::getName).collect(Collectors.toList());
+        return Arrays.stream(PlotFlags.values())
+                .map(PlotFlags::getName)
+                .filter(f -> f.toLowerCase().startsWith(args[0].toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

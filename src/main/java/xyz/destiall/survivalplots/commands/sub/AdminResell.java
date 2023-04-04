@@ -4,12 +4,10 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
-import xyz.destiall.survivalplots.economy.Bank;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
@@ -19,9 +17,9 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import static xyz.destiall.survivalplots.commands.PlotCommand.color;
 
-public class Sell extends SubCommand {
-    public Sell() {
-        super("user");
+public class AdminResell extends SubCommand {
+    public AdminResell() {
+        super("mod.resell");
     }
 
     @Override
@@ -31,18 +29,12 @@ public class Sell extends SubCommand {
             return;
         }
 
-        Location location = ((Player) sender).getLocation();
-
         PlotManager pm = plugin.getPlotManager();
-        SurvivalPlot plot = pm.getPlotAt(location);
+        SurvivalPlot plot = pm.getPlotAt(((Player) sender).getLocation());
+        PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
+
         if (plot == null) {
             sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
-            return;
-        }
-
-        PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
-        if (plot.getOwner() != player) {
-            sender.sendMessage(color("&cThis plot is not available to sell!"));
             return;
         }
 
@@ -53,19 +45,9 @@ public class Sell extends SubCommand {
             Schematic def = WorldEditHook.loadPlot(plot, "default");
             if (def != null) {
                 if (plot.loadSchematic(def)) {
-                    sender.sendMessage(color("&aSuccessfully reset plot " + plot.getId()));
-                    Bank bank = plugin.getEconomyManager().getBank((Player) sender);
-                    int cost = plugin.getEconomyManager().getPlotCost() / 2;
-                    sender.sendMessage(color("&aRefunded back " + cost + " " + plugin.getEconomyManager().getEconomyMaterial().name()));
-                    bank.deposit(cost);
-                    try {
-                        ((Player) sender).teleportAsync(plot.getHome());
-                    } catch (Exception e) {
-                        ((Player) sender).teleport(plot.getHome());
-                    }
+                    sender.sendMessage(color("&aSuccessfully resold plot " + plot.getId()));
                 } else {
-                    sender.sendMessage(color("&cUnable to reset plot " + plot.getId()));
-                    return;
+                    sender.sendMessage(color("&cUnable to resell plot " + plot.getId()));
                 }
             }
 
@@ -77,11 +59,10 @@ public class Sell extends SubCommand {
             plot.setOwner("N/A");
         });
 
-        TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm selling your plot."));
+        TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm reselling this plot."));
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&aClick to confirm"))));
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot confirm"));
         sender.sendMessage(component);
-        sender.sendMessage(color("&cWARNING!! Selling your plot will lose your ownership status!"));
-        sender.sendMessage(color("&cYou will also be refunded half the buy price!"));
+        sender.sendMessage(color("&cWARNING!! Resetting will reset this plot to its default state and remove its ownership!"));
     }
 }

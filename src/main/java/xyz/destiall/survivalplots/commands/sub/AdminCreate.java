@@ -20,11 +20,13 @@ public class AdminCreate extends SubCommand {
             sender.sendMessage(color("&cYou need to be a player!"));
             return;
         }
+
         BoundingBox selection = WorldEditHook.getSelection((Player) sender);
         if (selection == null) {
             sender.sendMessage(color("&cYou do not have a complete selection!"));
             return;
         }
+
         SurvivalPlot plot = plugin.getPlotManager().createPlot(((Player) sender).getWorld(), selection);
 
         sender.sendMessage(color("&aCreated plot " + plot.getId() + " in " + plot.getWorld().getName()));

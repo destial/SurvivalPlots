@@ -1,13 +1,11 @@
 package xyz.destiall.survivalplots.listeners;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Dispenser;
 import org.bukkit.entity.Boat;
@@ -25,16 +23,13 @@ import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockMultiPlaceEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.StructureGrowEvent;
@@ -57,7 +52,7 @@ public class PlotBlocksListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -82,7 +77,7 @@ public class PlotBlocksListener implements Listener {
 
     /// Source: GriefPrevention
     //ensures dispensers can't be used to dispense a block(like water or lava) or item across a claim boundary
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onDispense(BlockDispenseEvent dispenseEvent) {
         //from where?
         Block fromBlock = dispenseEvent.getBlock();
@@ -104,7 +99,7 @@ public class PlotBlocksListener implements Listener {
     }
 
     /// Source: GriefPrevention
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onTreeGrow(StructureGrowEvent growEvent) {
         Location rootLocation = growEvent.getLocation();
         PlotManager pm = plugin.getPlotManager();
@@ -125,7 +120,7 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockInteract(PlayerInteractEvent e) {
         Block block = e.getClickedBlock();
         if (block == null)
@@ -287,7 +282,7 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockPlace(BlockPlaceEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -310,7 +305,7 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockDamage(BlockDamageEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -351,7 +346,7 @@ public class PlotBlocksListener implements Listener {
         e.blockList().removeIf(block -> plot != pm.getPlotAt(block.getLocation()));
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockMultiPlace(BlockMultiPlaceEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -402,7 +397,7 @@ public class PlotBlocksListener implements Listener {
     }
 
     /// Source code: PlotSquared v6
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockPistonExtend(BlockPistonExtendEvent event) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -457,7 +452,7 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockPistonRetract(BlockPistonRetractEvent event) {
         PlotManager pm = plugin.getPlotManager();
 

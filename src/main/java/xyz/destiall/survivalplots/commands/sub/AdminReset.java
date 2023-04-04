@@ -8,17 +8,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
-import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotManager;
+import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import static xyz.destiall.survivalplots.commands.PlotCommand.color;
 
 public class AdminReset extends SubCommand {
     public AdminReset() {
-        super("mod");
+        super("mod.reset");
     }
 
     @Override
@@ -37,7 +37,7 @@ public class AdminReset extends SubCommand {
             return;
         }
 
-        Runnable afterConfirmation = () -> {
+        player.setConfirmation(() -> {
             WorldEditHook.backupPlot(plot, plot.getOwner().getName());
             sender.sendMessage(color("&aSuccessfully backed-up plot " + plot.getId()));
 
@@ -49,9 +49,7 @@ public class AdminReset extends SubCommand {
                     sender.sendMessage(color("&cUnable to reset plot " + plot.getId()));
                 }
             }
-        };
-
-        player.setConfirmation(afterConfirmation);
+        });
         TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm resetting this plot."));
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&aClick to confirm"))));
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot confirm"));

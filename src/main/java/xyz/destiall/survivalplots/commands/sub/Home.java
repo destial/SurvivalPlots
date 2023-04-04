@@ -4,7 +4,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
-import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import java.util.List;
@@ -39,7 +38,11 @@ public class Home extends SubCommand {
             }
         }
 
-        ((Player)sender).teleport(plot.getHome());
+        try {
+            ((Player) sender).teleportAsync(plot.getHome());
+        } catch (Exception e) {
+            ((Player) sender).teleport(plot.getHome());
+        }
         sender.sendMessage(Messages.Key.TELEPORT_HOME.get((Player) sender, plot));
     }
 }

@@ -1,9 +1,7 @@
 package xyz.destiall.survivalplots;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import xyz.destiall.survivalplots.commands.PlotCommand;
 import xyz.destiall.survivalplots.economy.EconomyManager;
 import xyz.destiall.survivalplots.hooks.DynmapHook;
@@ -25,12 +23,14 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
     private PlotPlayerManager plotPlayerManager;
     private PlotManager plotManager;
     private EconomyManager economyManager;
+    private Scheduler scheduler;
 
     private static SurvivalPlotsPlugin INST;
 
     @Override
     public void onEnable() {
         INST = this;
+        this.scheduler = new Scheduler(this);
         saveDefaultConfig();
         plotPlayerManager = new PlotPlayerManager(this);
         plotManager = new PlotManager(this);
@@ -59,7 +59,7 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
         PlaceholderAPIHook.disable();
 
         getCommand("svplots").setExecutor(null);
-        getServer().getScheduler().cancelTasks(this);
+        getScheduler().cancelTasks();
     }
 
     public void reload() {
@@ -82,6 +82,10 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
 
     public PlotPlayerManager getPlotPlayerManager() {
         return plotPlayerManager;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
     public static SurvivalPlotsPlugin getInst() {
@@ -121,6 +125,8 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
     }
 
     public static String relativeDate(Date end) {
+        if (end == null)
+            return "N/A";
 
         Date start = new Date();
         // Calculate time difference
@@ -168,29 +174,5 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
         }
 
         return format.trim();
-    }
-
-    public static BukkitTask runAsync(Runnable runnable) {
-        return Bukkit.getScheduler().runTaskAsynchronously(getInst(), runnable);
-    }
-
-    public static BukkitTask run(Runnable runnable) {
-        return Bukkit.getScheduler().runTask(getInst(), runnable);
-    }
-
-    public static BukkitTask scheduleAsync(Runnable runnable, long ticks) {
-        return Bukkit.getScheduler().runTaskLaterAsynchronously(getInst(), runnable, ticks);
-    }
-
-    public static BukkitTask schedule(Runnable runnable, long ticks) {
-        return Bukkit.getScheduler().runTaskLater(getInst(), runnable, ticks);
-    }
-
-    public static BukkitTask repeatAsync(Runnable runnable, long delay, long period) {
-        return Bukkit.getScheduler().runTaskTimerAsynchronously(getInst(), runnable, delay, period);
-    }
-
-    public static BukkitTask repeat(Runnable runnable, long delay, long period) {
-        return Bukkit.getScheduler().runTaskTimer(getInst(), runnable, delay, period);
     }
 }

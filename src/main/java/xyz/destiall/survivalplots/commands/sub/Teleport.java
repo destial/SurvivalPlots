@@ -24,7 +24,7 @@ public class Teleport extends SubCommand {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(color("&cYou need to specify a player!"));
+            sender.sendMessage(color("&cUsage: /plot tp [owner]"));
             return;
         }
 
@@ -34,7 +34,11 @@ public class Teleport extends SubCommand {
                 continue;
 
             if (plot.getRawOwner().equalsIgnoreCase(name)) {
-                ((Player)sender).teleport(plot.getHome());
+                try {
+                    ((Player) sender).teleportAsync(plot.getHome());
+                } catch (Exception e) {
+                    ((Player) sender).teleport(plot.getHome());
+                }
                 sender.sendMessage(Messages.Key.TELEPORT_OTHERS.get((Player) sender, plot));
                 return;
             }

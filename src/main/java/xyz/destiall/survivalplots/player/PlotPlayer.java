@@ -29,6 +29,10 @@ public class PlotPlayer {
         return Bukkit.getOfflinePlayer(name);
     }
 
+    public Player getOnlinePlayer() {
+        return isOnline() ? Bukkit.getPlayer(name) : null;
+    }
+
     public boolean isOwner(SurvivalPlot plot) {
         return equals(plot.getOwner());
     }

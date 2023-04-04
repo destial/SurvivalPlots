@@ -31,7 +31,7 @@ public class EconomyManager {
 
     public Bank getBank(Player player) {
         if (accounts.putIfAbsent(player.getName(), new Bank(this, player)) == null) {
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> accounts.remove(player.getName()), 60 * 20);
+            plugin.getScheduler().runTaskLater(() -> accounts.remove(player.getName()), 60L * 20L);
         }
         return accounts.get(player.getName());
     }

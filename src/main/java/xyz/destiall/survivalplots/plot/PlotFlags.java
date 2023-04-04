@@ -12,6 +12,7 @@ public enum PlotFlags {
     MEMBER_EDIT_FLAGS("member_edit_flags", "Allow members to edit this plot's flags"),
     MEMBER_TRUST_OTHER("member_trust_other", "Allow members to trust other players in this plot"),
     MEMBER_BAN_OTHER("member_ban_other", "Allow members to ban other players from this plot"),
+    MEMBER_FLY("member_fly", "Allow members fly in this plot"),
 
     GUEST_BUILD("guest_build", "Allow visitors to build"),
     GUEST_OPEN_INVENTORY("guest_open_inventory", "Allow visitors to open chests"),

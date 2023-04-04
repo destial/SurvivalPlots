@@ -1,7 +1,6 @@
 package xyz.destiall.survivalplots.listeners;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;

@@ -1,6 +1,5 @@
 package xyz.destiall.survivalplots.commands.sub;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -43,7 +42,7 @@ public class Trust extends SubCommand {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(color("&cYou need to mention a player to trust!"));
+            sender.sendMessage(color("&cUsage: /plot trust [player]"));
             return;
         }
 
@@ -68,6 +67,9 @@ public class Trust extends SubCommand {
             return super.tab(sender, args);
 
         Player player = (Player) sender;
-        return Bukkit.getOnlinePlayers().stream().filter(player::canSee).map(Player::getName).filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        return plugin.getServer().getOnlinePlayers().stream()
+                .filter(player::canSee).map(Player::getName)
+                .filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

@@ -6,15 +6,17 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import org.bukkit.Bukkit;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
@@ -188,6 +190,21 @@ public class SurvivalPlot {
 
     public boolean removeFlag(PlotFlags flag) {
         if (flags.remove(flag)) {
+            if (flag == PlotFlags.MEMBER_FLY) {
+                getPlayersInPlot().forEach(player -> {
+                    if (player.isMember(this)) {
+                        player.getOnlinePlayer().sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get(player.getOnlinePlayer(), this));
+                        Player p = player.getOnlinePlayer();
+                        if (p.getAllowFlight()) {
+                            p.setFlying(false);
+                            p.setAllowFlight(false);
+                        } else {
+                            p.setAllowFlight(true);
+                            p.setFlying(true);
+                        }
+                    }
+                });
+            }
             SurvivalPlotsPlugin.getInst().getPlotManager().update();
             return true;
         }
@@ -196,6 +213,12 @@ public class SurvivalPlot {
 
     public List<String> getMembers() {
         return members;
+    }
+
+    public List<PlotPlayer> getPlayersInPlot() {
+        return getWorld().getNearbyEntities(bounds, f -> f instanceof Player).stream()
+                .map(p -> SurvivalPlotsPlugin.getInst().getPlotPlayerManager().getPlotPlayer((Player) p))
+                .collect(Collectors.toList());
     }
 
     public boolean trust(Player player) {
@@ -303,26 +326,28 @@ public class SurvivalPlot {
 
     public Location getCenter() {
         if (center == null) {
-            center = new Location(getWorld(), bounds.getCenterX(), bounds.getMinY(), bounds.getCenterZ());
-            while (center.getBlock().getType() != Material.AIR) {
-                center.add(0, 1, 0);
-                if (center.getBlock().getRelative(BlockFace.UP).getType() != Material.AIR) {
-                    center.add(0, 1, 0);
-                }
-            }
+            center = new Location(getWorld(), bounds.getCenterX(), bounds.getMaxY(), bounds.getCenterZ());
+            RayTraceResult result = getWorld().rayTraceBlocks(center, new Vector(0, -1, 0), getWorld().getMaxHeight() - getWorld().getMinHeight(), FluidCollisionMode.ALWAYS, true);
+            if (result == null || result.getHitBlock() == null)
+                return null;
+
+            center.add(0, 1, 0);
+        }
+        if (center.getBlock().getType() != Material.AIR) {
+            center = null;
+            return getCenter();
         }
         return center;
     }
 
     public Location getHome() {
         if (home == null) {
-            home = new Location(getWorld(), bounds.getCenterX(), bounds.getMinY(), bounds.getMaxZ() + 2);
-            while (home.getBlock().getType() != Material.AIR) {
-                home.add(0, 1, 0);
-                if (home.getBlock().getRelative(BlockFace.UP).getType() != Material.AIR) {
-                    home.add(0, 1, 0);
-                }
-            }
+            home = new Location(getWorld(), bounds.getCenterX(), bounds.getMaxY(), bounds.getMaxZ() + 2);
+            RayTraceResult result = getWorld().rayTraceBlocks(home, new Vector(0, -1, 0), getWorld().getMaxHeight() - getWorld().getMinHeight(), FluidCollisionMode.ALWAYS, true);
+            if (result == null || result.getHitBlock() == null)
+                return null;
+
+            home.add(0, 1, 0);
             home.setDirection(new Vector(0, 0, -1));
         }
         if (home.getBlock().getType() != Material.AIR) {
@@ -384,7 +409,7 @@ public class SurvivalPlot {
 
         for (int ry = 0; ry < HEIGHT; ry++) {
             final int finalry = ry;
-            SurvivalPlotsPlugin.run(() -> {
+            SurvivalPlotsPlugin.getInst().getScheduler().runTask(() -> {
                 int yy = p1y + finalry;
                 for (int rz = 0; rz < LENGTH; rz++) {
                     for (int rx = 0; rx < WIDTH; rx++) {
@@ -395,7 +420,7 @@ public class SurvivalPlot {
                         plotLoc.getBlock().setBlockData(BukkitAdapter.adapt(id));
                     }
                 }
-            });
+            }, getCenter());
         }
 
         return true;

@@ -70,6 +70,7 @@ public class Messages {
             message = message.replace("{plotmembers}", String.join(", ", plot.getMembers()));
             message = message.replace("{plotbanned}", String.join(", ", plot.getBanned()));
             message = message.replace("{plotdescription}", plot.getDescription());
+            message = message.replace("{plotexpiry}", SurvivalPlotsPlugin.relativeDate(plot.getExpiryDate()));
         }
 
         return message;

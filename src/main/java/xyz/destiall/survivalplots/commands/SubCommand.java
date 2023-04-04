@@ -34,9 +34,9 @@ public abstract class SubCommand {
         this.permission = ALL_PERMISSIONS.stream().filter(p -> p.getName().equals("svplots." + permission)).findFirst().orElseGet(() -> {
             Permission p = new Permission("svplots." + permission);
             try {
-                Bukkit.getServer().getPluginManager().addPermission(p);
+                plugin.getServer().getPluginManager().addPermission(p);
             } catch (Exception ignored) {
-                p = Bukkit.getServer().getPluginManager().getPermission(p.getName());
+                p = plugin.getServer().getPluginManager().getPermission(p.getName());
             }
             ALL_PERMISSIONS.add(p);
             return p;
