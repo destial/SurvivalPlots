@@ -10,6 +10,7 @@ import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -325,15 +326,19 @@ public class SurvivalPlot {
     }
 
     public Location getCenter() {
+        boolean tried = false;
         if (center == null) {
             center = new Location(getWorld(), bounds.getCenterX(), bounds.getMaxY(), bounds.getCenterZ());
             RayTraceResult result = getWorld().rayTraceBlocks(center, new Vector(0, -1, 0), getWorld().getMaxHeight() - getWorld().getMinHeight(), FluidCollisionMode.ALWAYS, true);
             if (result == null || result.getHitBlock() == null)
                 return null;
 
+            Block block = result.getHitBlock();
+            center.set(block.getX(), block.getY(), block.getZ());
             center.add(0, 1, 0);
+            tried = true;
         }
-        if (center.getBlock().getType() != Material.AIR) {
+        if (!tried && center.getBlock().getType() != Material.AIR) {
             center = null;
             return getCenter();
         }
@@ -341,16 +346,21 @@ public class SurvivalPlot {
     }
 
     public Location getHome() {
+        boolean tried = false;
         if (home == null) {
             home = new Location(getWorld(), bounds.getCenterX(), bounds.getMaxY(), bounds.getMaxZ() + 2);
             RayTraceResult result = getWorld().rayTraceBlocks(home, new Vector(0, -1, 0), getWorld().getMaxHeight() - getWorld().getMinHeight(), FluidCollisionMode.ALWAYS, true);
             if (result == null || result.getHitBlock() == null)
                 return null;
 
+            Block block = result.getHitBlock();
+            home.set(block.getX(), block.getY(), block.getZ());
+
             home.add(0, 1, 0);
             home.setDirection(new Vector(0, 0, -1));
+            tried = true;
         }
-        if (home.getBlock().getType() != Material.AIR) {
+        if (!tried && home.getBlock().getType() != Material.AIR) {
             home = null;
             return getHome();
         }

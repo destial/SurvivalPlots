@@ -152,13 +152,13 @@ public class DynmapHook {
             fillcolor = -1;
             try {
                 if(sc != null)
-                    strokecolor = Integer.parseInt(sc.substring(1), 16);
+                    strokecolor = Integer.parseInt(sc, 16);
                 if(fc != null)
-                    fillcolor = Integer.parseInt(fc.substring(1), 16);
+                    fillcolor = Integer.parseInt(fc, 16);
                 if(osc != null)
-                    ownedstrokecolor = Integer.parseInt(osc.substring(1), 16);
+                    ownedstrokecolor = Integer.parseInt(osc, 16);
                 if(ofc != null)
-                    ownedfillcolor = Integer.parseInt(ofc.substring(1), 16);
+                    ownedfillcolor = Integer.parseInt(ofc, 16);
             } catch (NumberFormatException ignored) {}
 
             fillopacity = cfg.getDouble(path+".fill-opacity", -1);

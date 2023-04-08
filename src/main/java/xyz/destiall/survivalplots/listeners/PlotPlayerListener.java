@@ -11,6 +11,7 @@ import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -119,6 +120,46 @@ public class PlotPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
         onPlayerInteractEntity(e);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntityDamageByBlock(EntityDamageByBlockEvent e) {
+        if (e.getDamager() == null)
+            return;
+
+        PlotManager pm = plugin.getPlotManager();
+
+        SurvivalPlot plot = pm.getPlotAt(e.getEntity().getLocation());
+        if (plot == null)
+            return;
+
+        SurvivalPlot other = pm.getPlotAt(e.getDamager().getLocation());
+        if (e.getEntity() instanceof Animals) {
+            if (plot.hasFlag(PlotFlags.ANIMALS_INVINCIBLE)) {
+                e.setCancelled(true);
+                e.setDamage(0);
+                if (e.getDamager() instanceof Player) {
+                    e.getEntity().sendMessage(Messages.Key.NO_INTERACT.get((Player) e.getDamager(), plot));
+                }
+                return;
+            }
+        }
+
+        if (e.getDamager() instanceof Player) {
+            if (plot != other) {
+                e.setCancelled(true);
+                e.setDamage(0);
+                e.getEntity().sendMessage(Messages.Key.NO_INTERACT.get((Player) e.getDamager(), plot));
+                return;
+            }
+        }
+
+        if (e.getDamager() instanceof TNTPrimed || e.getDamager() instanceof ExplosiveMinecart) {
+            if (!plot.hasFlag(PlotFlags.EXPLOSIONS_ON) || plot != other) {
+                e.setCancelled(true);
+                e.setDamage(0);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

@@ -1,6 +1,7 @@
 package xyz.destiall.survivalplots.listeners;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -28,6 +29,8 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
+import org.bukkit.event.block.EntityBlockFormEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
@@ -126,21 +129,36 @@ public class PlotBlocksListener implements Listener {
         if (block == null)
             return;
 
-        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            PlotManager pm = plugin.getPlotManager();
+        PlotManager pm = plugin.getPlotManager();
 
-            SurvivalPlot plot = pm.getPlotAt(block.getLocation());
+        SurvivalPlot plot = pm.getPlotAt(block.getRelative(e.getBlockFace()).getLocation());
+        if (plot == null) {
+            plot = pm.getPlotAt(block.getLocation());
             if (plot == null)
                 return;
+        }
 
-            PlotPlayerManager ppm = plugin.getPlotPlayerManager();
-            PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
+        PlotPlayerManager ppm = plugin.getPlotPlayerManager();
+        PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
 
-            ItemStack item = e.getItem();
-            if (item != null && item.getType().name().endsWith("_AXE") && Tag.LOGS.isTagged(block.getType())) {
+        ItemStack item = e.getItem();
+        if (item != null) {
+            if (item.getType() == Material.ARMOR_STAND || item.getType() == Material.PAINTING || item.getType() == Material.ITEM_FRAME || item.getType() == Material.GLOW_ITEM_FRAME) {
                 if (!player.canBuild(plot)) {
                     e.setCancelled(true);
                     e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
+                }
+                return;
+            }
+        }
+
+        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (item != null) {
+                if (item.getType().name().endsWith("_AXE") && Tag.LOGS.isTagged(block.getType())) {
+                    if (!player.canBuild(plot)) {
+                        e.setCancelled(true);
+                        e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
+                    }
                 }
                 return;
             }
@@ -229,11 +247,8 @@ public class PlotBlocksListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onVehicleCreate(EntityPlaceEvent event) {
+    public void onEntityCreate(EntityPlaceEvent event) {
         Entity entity = event.getEntity();
-
-        if (!(entity instanceof Minecart) && !(entity instanceof Boat))
-            return;
 
         PlotManager pm = plugin.getPlotManager();
         SurvivalPlot plot = pm.getPlotAt(entity.getLocation());
@@ -243,16 +258,19 @@ public class PlotBlocksListener implements Listener {
         if (event.getPlayer() != null) {
             PlotPlayerManager ppm = plugin.getPlotPlayerManager();
             PlotPlayer player = ppm.getPlotPlayer(event.getPlayer());
-            if (!player.canInteractEntity(plot)) {
+            if (!player.canBuild(plot)) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(event.getPlayer(), plot));
             }
         }
 
-        if (plot.hasFlag(PlotFlags.ALLOW_VEHICLES))
-            return;
+        if (entity instanceof Minecart || entity instanceof Boat) {
+            if (plot.hasFlag(PlotFlags.ALLOW_VEHICLES))
+                return;
+        }
 
         event.setCancelled(true);
+        event.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(event.getPlayer(), plot));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
