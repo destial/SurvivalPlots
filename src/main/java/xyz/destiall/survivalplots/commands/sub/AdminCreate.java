@@ -7,6 +7,8 @@ import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
+import java.util.Arrays;
+
 import static xyz.destiall.survivalplots.commands.PlotCommand.color;
 
 public class AdminCreate extends SubCommand {
@@ -27,7 +29,9 @@ public class AdminCreate extends SubCommand {
             return;
         }
 
-        SurvivalPlot plot = plugin.getPlotManager().createPlot(((Player) sender).getWorld(), selection);
+        boolean fullHeight = Arrays.stream(args).noneMatch(a -> a.equalsIgnoreCase("-s"));
+
+        SurvivalPlot plot = plugin.getPlotManager().createPlot(((Player) sender).getWorld(), selection, fullHeight);
 
         sender.sendMessage(color("&aCreated plot " + plot.getId() + " in " + plot.getWorld().getName()));
 

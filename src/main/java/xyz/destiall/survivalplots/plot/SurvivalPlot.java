@@ -329,9 +329,12 @@ public class SurvivalPlot {
         boolean tried = false;
         if (center == null) {
             center = new Location(getWorld(), bounds.getCenterX(), bounds.getMaxY(), bounds.getCenterZ());
-            RayTraceResult result = getWorld().rayTraceBlocks(center, new Vector(0, -1, 0), getWorld().getMaxHeight() - getWorld().getMinHeight(), FluidCollisionMode.ALWAYS, true);
+            if (!center.getChunk().isLoaded()) {
+                center.getChunk().load();
+            }
+            RayTraceResult result = getWorld().rayTraceBlocks(center, new Vector(0, -1, 0), bounds.getMaxY() - bounds.getMinY(), FluidCollisionMode.ALWAYS, true);
             if (result == null || result.getHitBlock() == null)
-                return null;
+                return center;
 
             Block block = result.getHitBlock();
             center.set(block.getX(), block.getY(), block.getZ());
@@ -349,13 +352,15 @@ public class SurvivalPlot {
         boolean tried = false;
         if (home == null) {
             home = new Location(getWorld(), bounds.getCenterX(), bounds.getMaxY(), bounds.getMaxZ() + 2);
-            RayTraceResult result = getWorld().rayTraceBlocks(home, new Vector(0, -1, 0), getWorld().getMaxHeight() - getWorld().getMinHeight(), FluidCollisionMode.ALWAYS, true);
+            if (!home.getChunk().isLoaded()) {
+                home.getChunk().load();
+            }
+            RayTraceResult result = getWorld().rayTraceBlocks(home, new Vector(0, -1, 0), bounds.getMaxY() - bounds.getMinY(), FluidCollisionMode.ALWAYS, true);
             if (result == null || result.getHitBlock() == null)
-                return null;
+                return home;
 
             Block block = result.getHitBlock();
             home.set(block.getX(), block.getY(), block.getZ());
-
             home.add(0, 1, 0);
             home.setDirection(new Vector(0, 0, -1));
             tried = true;
@@ -393,20 +398,19 @@ public class SurvivalPlot {
         final int WIDTH = dimension.getX();
         final int LENGTH = dimension.getZ();
         final int HEIGHT = dimension.getY();
-        final int worldHeight = getMax().getBlockY() - getMin().getBlockY() + 1;
 
         CuboidRegion region = WorldEditHook.adapt(getWorld(), getBounds());
         boolean sizeMismatch =
                 ((region.getMaximumPoint().getX() - region.getMinimumPoint().getX()) < WIDTH) ||
-                ((region.getMaximumPoint().getZ() - region.getMinimumPoint().getZ()) < LENGTH) ||
-                (HEIGHT > worldHeight);
+                ((region.getMaximumPoint().getY() - region.getMinimumPoint().getY()) < HEIGHT) ||
+                ((region.getMaximumPoint().getZ() - region.getMinimumPoint().getZ()) < LENGTH);
         if (sizeMismatch) {
             boolean ignore = SurvivalPlotsPlugin.getInst().getConfig().getBoolean("ignore-size-mismatch", true);
             SurvivalPlotsPlugin.getInst()
                     .warning("Schematic size mismatch!")
                     .warning("Region X:" + (region.getMaximumPoint().getX() - region.getMinimumPoint().getX()) + " Dimension X:" + (WIDTH))
+                    .warning("Region Y:" + (region.getMaximumPoint().getY() - region.getMinimumPoint().getY()) + " Dimension Y:" + (HEIGHT))
                     .warning("Region Z:" + (region.getMaximumPoint().getZ() - region.getMinimumPoint().getZ()) + " Dimension Z:" + (LENGTH))
-                    .warning("World Height:" + (worldHeight) + " Dimension Y:" + (HEIGHT))
                     .warning(ignore ? "Ignoring warning due to config..." : "Skipping...");
 
             if (!ignore)
