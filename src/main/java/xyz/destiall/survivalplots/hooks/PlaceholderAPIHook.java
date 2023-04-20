@@ -30,6 +30,7 @@ public class PlaceholderAPIHook {
             return;
 
         hook.unregister();
+        hook = null;
     }
 
     private PlaceholderAPIHook() {}

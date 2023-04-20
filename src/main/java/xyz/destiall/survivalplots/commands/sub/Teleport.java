@@ -9,8 +9,6 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static xyz.destiall.survivalplots.commands.PlotCommand.color;
-
 public class Teleport extends SubCommand {
     public Teleport() {
         super("user.teleport");
@@ -18,13 +16,12 @@ public class Teleport extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(color("&cYou need to be a player!"));
+        if (!checkPlayer(sender))
             return;
-        }
 
+        Player player = (Player) sender;
         if (args.length == 0) {
-            sender.sendMessage(color("&cUsage: /plot tp [owner]"));
+            player.sendMessage(color("&cUsage: /plot tp [owner]"));
             return;
         }
 
@@ -35,11 +32,11 @@ public class Teleport extends SubCommand {
 
             if (plot.getRawOwner().equalsIgnoreCase(name)) {
                 try {
-                    ((Player) sender).teleportAsync(plot.getHome());
+                    player.teleportAsync(plot.getHome());
                 } catch (Exception e) {
-                    ((Player) sender).teleport(plot.getHome());
+                    player.teleport(plot.getHome());
                 }
-                sender.sendMessage(Messages.Key.TELEPORT_OTHERS.get((Player) sender, plot));
+                player.sendMessage(Messages.Key.TELEPORT_OTHERS.get(player, plot));
                 return;
             }
         }

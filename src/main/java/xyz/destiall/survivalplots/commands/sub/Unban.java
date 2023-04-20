@@ -1,6 +1,5 @@
 package xyz.destiall.survivalplots.commands.sub;
 
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
@@ -13,8 +12,6 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static xyz.destiall.survivalplots.commands.PlotCommand.color;
-
 public class Unban extends SubCommand {
     public Unban() {
         super("user");
@@ -22,37 +19,35 @@ public class Unban extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(color("&cYou need to be a player!"));
+        if (!checkPlayer(sender))
             return;
-        }
 
-        Location location = ((Player) sender).getLocation();
+        Player player = (Player) sender;
         PlotManager pm = plugin.getPlotManager();
-        SurvivalPlot plot = pm.getPlotAt(location);
+        SurvivalPlot plot = pm.getPlotAt(player.getLocation());
         if (plot == null) {
-            sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
+            player.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get(player, null));
             return;
         }
 
-        PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
-        if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_BAN_OTHER) || !player.isMember(plot))) {
-            sender.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get((Player) sender, plot));
+        PlotPlayer plotPlayer = plugin.getPlotPlayerManager().getPlotPlayer(player);
+        if (plot.getOwner() != plotPlayer && (!plot.hasFlag(PlotFlags.MEMBER_BAN_OTHER) || !plotPlayer.isMember(plot))) {
+            player.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get(player, plot));
             return;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(color("&cUsage: /plot unban [player]"));
+            player.sendMessage(color("&cUsage: /plot unban [player]"));
             return;
         }
 
         String name = args[0];
         if (!plot.unban(name)) {
-            sender.sendMessage(color("&c" + name + " is not banned from this plot!"));
+            player.sendMessage(color("&c" + name + " is not banned from this plot!"));
             return;
         }
 
-        sender.sendMessage(color("&aUnbanned " + name + " from this plot!"));
+        player.sendMessage(color("&aUnbanned " + name + " from this plot!"));
     }
 
     @Override
@@ -60,16 +55,15 @@ public class Unban extends SubCommand {
         if (!(sender instanceof Player) || args.length == 0)
             return super.tab(sender, args);
 
-        Location location = ((Player) sender).getLocation();
-
+        Player player = (Player) sender;
         PlotManager pm = plugin.getPlotManager();
-        SurvivalPlot plot = pm.getPlotAt(location);
+        SurvivalPlot plot = pm.getPlotAt(player.getLocation());
         if (plot == null) {
             return super.tab(sender, args);
         }
 
-        PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
-        if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_BAN_OTHER) || !player.isMember(plot))) {
+        PlotPlayer plotPlayer = plugin.getPlotPlayerManager().getPlotPlayer(player);
+        if (plot.getOwner() != plotPlayer && (!plot.hasFlag(PlotFlags.MEMBER_BAN_OTHER) || !plotPlayer.isMember(plot))) {
             return super.tab(sender, args);
         }
 

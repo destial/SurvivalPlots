@@ -121,7 +121,21 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
                 break;
             }
         }
-        return Duration.of(Integer.parseInt(numberString.toString()), unit);
+        try {
+            return Duration.of(Integer.parseInt(numberString.toString()), unit);
+        } catch (Exception e) {
+            getInst().getLogger().severe("Unable to parse duration " + s);
+            return Duration.ZERO;
+        }
+    }
+
+    public static Duration relativeDuration(Date end) {
+        if (end == null)
+            return Duration.ZERO;
+
+        Date start = new Date();
+        long difference_In_Time = end.getTime() - start.getTime();
+        return Duration.of(difference_In_Time, ChronoUnit.MILLIS);
     }
 
     public static String relativeDate(Date end) {

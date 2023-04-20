@@ -84,6 +84,10 @@ public class PlotManager {
         return getOwnedPlots(owner.getName());
     }
 
+    public List<SurvivalPlot> getAvailablePlots() {
+        return plots.stream().filter(plot -> plot.getOwner() == null).collect(Collectors.toList());
+    }
+
     public SurvivalPlot createPlot(World world, BoundingBox bounds, boolean fullHeight) {
         int id = ids.incrementAndGet();
         Location corner1 = new Location(world, bounds.getMinX(), fullHeight ? world.getMinHeight() : bounds.getMinY(), bounds.getMinZ());

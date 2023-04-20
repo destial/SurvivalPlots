@@ -8,9 +8,9 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import java.util.List;
 
-public class Home extends SubCommand {
-    public Home() {
-        super("user");
+public class Find extends SubCommand {
+    public Find() {
+        super("user.find");
     }
 
     @Override
@@ -19,22 +19,13 @@ public class Home extends SubCommand {
             return;
 
         Player player = (Player) sender;
-
-        List<SurvivalPlot> plots = plugin.getPlotManager().getOwnedPlots(player);
+        List<SurvivalPlot> plots = plugin.getPlotManager().getAvailablePlots();
         if (plots.size() == 0) {
-            player.sendMessage(color("&cYou have no plots!"));
+            player.sendMessage(Messages.Key.NO_AVAILABLE_PLOTS.get(player, null));
             return;
         }
 
         SurvivalPlot plot = plots.get(0);
-        if (args.length > 0) {
-            try {
-                plot = plots.get(Integer.parseInt(args[0]) - 1);
-            } catch (Exception e) {
-                player.sendMessage(color("&cInvalid plot number!"));
-                return;
-            }
-        }
 
         try {
             player.teleportAsync(plot.getHome());
@@ -42,6 +33,6 @@ public class Home extends SubCommand {
             player.teleport(plot.getHome());
         }
 
-        player.sendMessage(Messages.Key.TELEPORT_HOME.get(player, plot));
+        player.sendMessage(color("Teleported to plot " + plot.getId()));
     }
 }

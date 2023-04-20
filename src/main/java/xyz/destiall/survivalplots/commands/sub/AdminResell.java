@@ -15,8 +15,6 @@ import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
-import static xyz.destiall.survivalplots.commands.PlotCommand.color;
-
 public class AdminResell extends SubCommand {
     public AdminResell() {
         super("mod.resell");
@@ -24,30 +22,30 @@ public class AdminResell extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(color("&cYou need to be a player!"));
+        if (!checkPlayer(sender))
             return;
-        }
+
+        Player player = (Player) sender;
 
         PlotManager pm = plugin.getPlotManager();
-        SurvivalPlot plot = pm.getPlotAt(((Player) sender).getLocation());
-        PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
+        SurvivalPlot plot = pm.getPlotAt(player.getLocation());
+        PlotPlayer plotPlayer = plugin.getPlotPlayerManager().getPlotPlayer(player);
 
         if (plot == null) {
-            sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
+            player.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get(player, null));
             return;
         }
 
-        player.setConfirmation(() -> {
+        plotPlayer.setConfirmation(() -> {
             WorldEditHook.backupPlot(plot, plot.getOwner().getName());
-            sender.sendMessage(color("&aSuccessfully backed-up plot " + plot.getId()));
+            player.sendMessage(color("&aSuccessfully backed-up plot " + plot.getId()));
 
             Schematic def = WorldEditHook.loadPlot(plot, "default");
             if (def != null) {
                 if (plot.loadSchematic(def)) {
-                    sender.sendMessage(color("&aSuccessfully resold plot " + plot.getId()));
+                    player.sendMessage(color("&aSuccessfully resold plot " + plot.getId()));
                 } else {
-                    sender.sendMessage(color("&cUnable to resell plot " + plot.getId()));
+                    player.sendMessage(color("&cUnable to resell plot " + plot.getId()));
                 }
             }
 
@@ -62,7 +60,7 @@ public class AdminResell extends SubCommand {
         TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm reselling this plot."));
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&aClick to confirm"))));
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot confirm"));
-        sender.sendMessage(component);
-        sender.sendMessage(color("&cWARNING!! Resetting will reset this plot to its default state and remove its ownership!"));
+        player.sendMessage(component);
+        player.sendMessage(color("&cWARNING!! Resetting will reset this plot to its default state and remove its ownership!"));
     }
 }

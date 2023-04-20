@@ -13,8 +13,6 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static xyz.destiall.survivalplots.commands.PlotCommand.color;
-
 public class Untrust extends SubCommand {
     public Untrust() {
         super("user");
@@ -22,37 +20,35 @@ public class Untrust extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(color("&cYou need to be a player!"));
+        if (!checkPlayer(sender))
             return;
-        }
 
-        Location location = ((Player) sender).getLocation();
+        Player player = (Player) sender;
         PlotManager pm = plugin.getPlotManager();
-        SurvivalPlot plot = pm.getPlotAt(location);
+        SurvivalPlot plot = pm.getPlotAt(player.getLocation());
         if (plot == null) {
-            sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
+            player.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get(player, null));
             return;
         }
 
-        PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
-        if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_TRUST_OTHER) || !player.isMember(plot))) {
-            sender.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get((Player) sender, plot));
+        PlotPlayer plotPlayer = plugin.getPlotPlayerManager().getPlotPlayer(player);
+        if (plot.getOwner() != plotPlayer && (!plot.hasFlag(PlotFlags.MEMBER_TRUST_OTHER) || !plotPlayer.isMember(plot))) {
+            player.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get(player, plot));
             return;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(color("&cUsage: /plot untrust [player]"));
+            player.sendMessage(color("&cUsage: /plot untrust [player]"));
             return;
         }
 
         String name = args[0];
         if (!plot.untrust(name)) {
-            sender.sendMessage(color("&c" + name + " is not a member of this plot!"));
+            player.sendMessage(color("&c" + name + " is not a member of this plot!"));
             return;
         }
-        
-        sender.sendMessage(color("&aUntrusted " + name + " from this plot!"));
+
+        player.sendMessage(color("&aUntrusted " + name + " from this plot!"));
     }
 
     @Override

@@ -10,8 +10,6 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static xyz.destiall.survivalplots.commands.PlotCommand.color;
-
 public class AdminDelete extends SubCommand {
     public AdminDelete() {
         super("admin");
@@ -19,28 +17,28 @@ public class AdminDelete extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(color("&cYou need to be a player!"));
+        if (!checkPlayer(sender))
             return;
-        }
+
+        Player player = (Player) sender;
 
         if (args.length == 0) {
             PlotManager pm = plugin.getPlotManager();
-            SurvivalPlot plot = pm.getPlotAt(((Player) sender).getLocation());
+            SurvivalPlot plot = pm.getPlotAt(player.getLocation());
             if (plot == null) {
-                sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
+                player.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get(player, null));
                 return;
             }
 
             if (plugin.getPlotManager().deletePlot(plot)) {
-                sender.sendMessage(color("&aDeleted plot id " + plot.getId()));
+                player.sendMessage(color("&aDeleted plot id " + plot.getId()));
             }
             return;
         }
 
         int id = Integer.parseInt(args[0]);
         if (plugin.getPlotManager().deletePlot(id)) {
-            sender.sendMessage(color("&aDeleted plot id " + id));
+            player.sendMessage(color("&aDeleted plot id " + id));
         }
     }
 

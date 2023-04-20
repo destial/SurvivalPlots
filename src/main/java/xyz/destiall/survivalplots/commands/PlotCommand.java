@@ -17,6 +17,7 @@ import xyz.destiall.survivalplots.commands.sub.Ban;
 import xyz.destiall.survivalplots.commands.sub.Buy;
 import xyz.destiall.survivalplots.commands.sub.Confirm;
 import xyz.destiall.survivalplots.commands.sub.Desc;
+import xyz.destiall.survivalplots.commands.sub.Find;
 import xyz.destiall.survivalplots.commands.sub.Flags;
 import xyz.destiall.survivalplots.commands.sub.Fly;
 import xyz.destiall.survivalplots.commands.sub.Home;
@@ -65,6 +66,7 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         subCommands.put("description", new Desc());
         subCommands.put("fly", new Fly());
         subCommands.put("transfer", new Transfer());
+        subCommands.put("find", new Find());
     }
 
     @Override

@@ -3,8 +3,8 @@ package xyz.destiall.survivalplots.hooks;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.Flags;
-import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,7 +33,8 @@ public class WorldGuardHook {
         if (rm == null)
             return true;
 
-        return rm.getApplicableRegions(BukkitAdapter.asBlockVector(location)).queryState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BLOCK_PLACE) == StateFlag.State.ALLOW || canBuild(player, location);
+        ApplicableRegionSet rs = rm.getApplicableRegions(BukkitAdapter.asBlockVector(location));
+        return rs.testState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BUILD, Flags.BLOCK_PLACE);
     }
 
     public static boolean canBreak(Player player, Location location) {
@@ -43,8 +44,8 @@ public class WorldGuardHook {
         RegionManager rm = getRegionManager(location);
         if (rm == null)
             return true;
-
-        return rm.getApplicableRegions(BukkitAdapter.asBlockVector(location)).queryState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BLOCK_BREAK) == StateFlag.State.ALLOW || canBuild(player, location);
+        ApplicableRegionSet rs = rm.getApplicableRegions(BukkitAdapter.asBlockVector(location));
+        return rs.testState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BUILD, Flags.BLOCK_BREAK);
     }
 
     public static boolean canUse(Player player, Location location) {
@@ -54,8 +55,8 @@ public class WorldGuardHook {
         RegionManager rm = getRegionManager(location);
         if (rm == null)
             return true;
-
-        return rm.getApplicableRegions(BukkitAdapter.asBlockVector(location)).queryState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.USE) == StateFlag.State.ALLOW || canBuild(player, location);
+        ApplicableRegionSet rs = rm.getApplicableRegions(BukkitAdapter.asBlockVector(location));
+        return rs.testState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.USE);
     }
 
     public static boolean canInteract(Player player, Location location) {
@@ -65,8 +66,31 @@ public class WorldGuardHook {
         RegionManager rm = getRegionManager(location);
         if (rm == null)
             return true;
+        ApplicableRegionSet rs = rm.getApplicableRegions(BukkitAdapter.asBlockVector(location));
+        return rs.testState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.INTERACT);
+    }
 
-        return rm.getApplicableRegions(BukkitAdapter.asBlockVector(location)).queryState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.INTERACT) == StateFlag.State.ALLOW || canBuild(player, location);
+    public static boolean canPlaceVehicles(Player player, Location location) {
+        if (!enabled)
+            return true;
+
+        RegionManager rm = getRegionManager(location);
+        if (rm == null)
+            return true;
+        ApplicableRegionSet rs = rm.getApplicableRegions(BukkitAdapter.asBlockVector(location));
+        return rs.testState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BUILD, Flags.PLACE_VEHICLE);
+    }
+
+    public static boolean canBreakVehicles(Player player, Location location) {
+        if (!enabled)
+            return true;
+
+        RegionManager rm = getRegionManager(location);
+        if (rm == null)
+            return true;
+
+        ApplicableRegionSet rs = rm.getApplicableRegions(BukkitAdapter.asBlockVector(location));
+        return rs.testState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BUILD, Flags.DESTROY_VEHICLE);
     }
 
     public static boolean canBuild(Player player, Location location) {
@@ -76,6 +100,7 @@ public class WorldGuardHook {
         if (rm == null)
             return true;
 
-        return rm.getApplicableRegions(BukkitAdapter.asBlockVector(location)).queryState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BUILD) == StateFlag.State.ALLOW;
+        ApplicableRegionSet rs = rm.getApplicableRegions(BukkitAdapter.asBlockVector(location));
+        return rs.testState(WorldGuardPlugin.inst().wrapPlayer(player), Flags.BUILD);
     }
 }

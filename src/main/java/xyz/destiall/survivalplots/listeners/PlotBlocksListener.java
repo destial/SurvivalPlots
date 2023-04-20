@@ -29,10 +29,9 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
-import org.bukkit.event.block.EntityBlockFormEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.StructureGrowEvent;
@@ -40,8 +39,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
-import xyz.destiall.survivalplots.hooks.GriefPreventionHook;
-import xyz.destiall.survivalplots.hooks.WorldGuardHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.player.PlotPlayerManager;
 import xyz.destiall.survivalplots.plot.PlotFlags;
@@ -55,7 +52,7 @@ public class PlotBlocksListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -72,15 +69,15 @@ public class PlotBlocksListener implements Listener {
             return;
         }
 
-        if (!WorldGuardHook.canBreak(e.getPlayer(), e.getBlock().getLocation())) {
+        //if (!WorldGuardHook.canBreak(e.getPlayer(), e.getBlock().getLocation())) {
             e.setCancelled(false);
             e.setDropItems(true);
-        }
+        //}
     }
 
     /// Source: GriefPrevention
     //ensures dispensers can't be used to dispense a block(like water or lava) or item across a claim boundary
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onDispense(BlockDispenseEvent dispenseEvent) {
         //from where?
         Block fromBlock = dispenseEvent.getBlock();
@@ -102,7 +99,7 @@ public class PlotBlocksListener implements Listener {
     }
 
     /// Source: GriefPrevention
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onTreeGrow(StructureGrowEvent growEvent) {
         Location rootLocation = growEvent.getLocation();
         PlotManager pm = plugin.getPlotManager();
@@ -123,7 +120,7 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockInteract(PlayerInteractEvent e) {
         Block block = e.getClickedBlock();
         if (block == null)
@@ -138,28 +135,56 @@ public class PlotBlocksListener implements Listener {
                 return;
         }
 
+        ItemStack item = e.getItem();
         PlotPlayerManager ppm = plugin.getPlotPlayerManager();
         PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
 
-        ItemStack item = e.getItem();
-        if (item != null) {
-            if (item.getType() == Material.ARMOR_STAND || item.getType() == Material.PAINTING || item.getType() == Material.ITEM_FRAME || item.getType() == Material.GLOW_ITEM_FRAME) {
-                if (!player.canBuild(plot)) {
-                    e.setCancelled(true);
-                    e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
+        if (e.getAction() == Action.LEFT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_AIR) {
+            if (item != null) {
+                if (item.getType() == Material.ARMOR_STAND ||
+                        item.getType() == Material.PAINTING ||
+                        item.getType() == Material.ITEM_FRAME ||
+                        item.getType() == Material.GLOW_ITEM_FRAME) {
+                    if (!player.canBuild(plot)) {
+                        e.setCancelled(true);
+                        e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
+                    } else
+                        //if (!WorldGuardHook.canUse(e.getPlayer(), block.getLocation())) {
+                        e.setCancelled(false);
+                    //}
+                    return;
                 }
-                return;
             }
         }
 
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (item != null) {
+                if (item.getType() == Material.ARMOR_STAND ||
+                        item.getType() == Material.PAINTING ||
+                        item.getType() == Material.ITEM_FRAME ||
+                        item.getType() == Material.GLOW_ITEM_FRAME ||
+                        item.getType().name().contains("_BUCKET")) {
+                    if (!player.canBuild(plot)) {
+                        e.setCancelled(true);
+                        e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
+                    } else
+                        //if (!WorldGuardHook.canUse(e.getPlayer(), block.getLocation())) {
+                        e.setCancelled(false);
+                    //}
+                    return;
+                }
+            }
+
             if (item != null) {
                 if (item.getType().name().endsWith("_AXE") && Tag.LOGS.isTagged(block.getType())) {
                     if (!player.canBuild(plot)) {
                         e.setCancelled(true);
                         e.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(e.getPlayer(), plot));
                     }
-                }
+                } else
+                    //if (!WorldGuardHook.canUse(e.getPlayer(), block.getLocation())) {
+                    e.setCancelled(false);
+                //}
                 return;
             }
 
@@ -182,16 +207,19 @@ public class PlotBlocksListener implements Listener {
                     e.setCancelled(true);
                     e.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(e.getPlayer(), plot));
                     return;
-                }
+                } else
+                    //if (!WorldGuardHook.canUse(e.getPlayer(), block.getLocation())) {
+                    e.setCancelled(false);
+                //}
             }
 
-            if (!WorldGuardHook.canUse(e.getPlayer(), block.getLocation())) {
+            //if (!WorldGuardHook.canUse(e.getPlayer(), block.getLocation())) {
                 e.setCancelled(false);
-            }
+            //}
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onCauldronEmpty(CauldronLevelChangeEvent event) {
         Entity entity = event.getEntity();
         PlotManager pm = plugin.getPlotManager();
@@ -227,7 +255,7 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onVehicleEnter(VehicleEnterEvent event) {
         Vehicle entity = event.getVehicle();
 
@@ -242,11 +270,14 @@ public class PlotBlocksListener implements Listener {
             if (!player.canInteractEntity(plot)) {
                 event.setCancelled(true);
                 event.getEntered().sendMessage(Messages.Key.NO_INTERACT.get((Player) event.getEntered(), plot));
+                return;
             }
         }
+
+        event.setCancelled(false);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEntityCreate(EntityPlaceEvent event) {
         Entity entity = event.getEntity();
 
@@ -260,20 +291,27 @@ public class PlotBlocksListener implements Listener {
             PlotPlayer player = ppm.getPlotPlayer(event.getPlayer());
             if (!player.canBuild(plot)) {
                 event.setCancelled(true);
-                event.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(event.getPlayer(), plot));
+                event.getPlayer().sendMessage(Messages.Key.NO_BUILD.get(event.getPlayer(), plot));
+                return;
             }
         }
 
         if (entity instanceof Minecart || entity instanceof Boat) {
-            if (plot.hasFlag(PlotFlags.ALLOW_VEHICLES))
+            if (!plot.hasFlag(PlotFlags.ALLOW_VEHICLES)) {
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(event.getPlayer(), plot));
                 return;
+            }
         }
 
-        event.setCancelled(true);
-        event.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(event.getPlayer(), plot));
+        //if (!WorldGuardHook.canPlace(event.getPlayer(), entity.getLocation()) ||
+        //    !WorldGuardHook.canUse(event.getPlayer(), entity.getLocation()) ||
+        //    !WorldGuardHook.canPlaceVehicles(event.getPlayer(), entity.getLocation())) {
+            event.setCancelled(false);
+        //}
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onVehicleMove(VehicleMoveEvent event) {
         Vehicle entity = event.getVehicle();
 
@@ -285,7 +323,7 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChange(BlockFromToEvent event) {
         Block fromBlock = event.getBlock();
         final Location fromLocation = fromBlock.getLocation();
@@ -297,10 +335,12 @@ public class PlotBlocksListener implements Listener {
 
         if (fromPlot != toPlot) {
             event.setCancelled(true);
+            return;
         }
+        event.setCancelled(false);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -317,13 +357,36 @@ public class PlotBlocksListener implements Listener {
             return;
         }
 
-        if (!WorldGuardHook.canPlace(e.getPlayer(), e.getBlock().getLocation())) {
+        //if (!WorldGuardHook.canPlace(e.getPlayer(), e.getBlock().getLocation())) {
             e.setCancelled(false);
             e.setBuild(true);
-        }
+        //}
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onVehicleDestroy(VehicleDestroyEvent e) {
+        if (!(e.getAttacker() instanceof Player))
+            return;
+
+        PlotManager pm = plugin.getPlotManager();
+
+        SurvivalPlot plot = pm.getPlotAt(e.getVehicle().getLocation());
+        if (plot == null)
+            return;
+
+        PlotPlayerManager ppm = plugin.getPlotPlayerManager();
+        PlotPlayer player = ppm.getPlotPlayer((Player) e.getAttacker());
+
+        if (!player.canInteractEntity(plot)) {
+            e.setCancelled(true);
+            e.getAttacker().sendMessage(Messages.Key.NO_INTERACT.get((Player) e.getAttacker(), plot));
+            return;
+        }
+
+        e.setCancelled(false);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockDamage(BlockDamageEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -340,12 +403,12 @@ public class PlotBlocksListener implements Listener {
             return;
         }
 
-        if (!WorldGuardHook.canBreak(e.getPlayer(), e.getBlock().getLocation())) {
+        //if (!WorldGuardHook.canBreak(e.getPlayer(), e.getBlock().getLocation())) {
             e.setCancelled(false);
-        }
+        //}
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockExplode(BlockExplodeEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -364,7 +427,7 @@ public class PlotBlocksListener implements Listener {
         e.blockList().removeIf(block -> plot != pm.getPlotAt(block.getLocation()));
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockMultiPlace(BlockMultiPlaceEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -390,10 +453,10 @@ public class PlotBlocksListener implements Listener {
             return;
         }
 
-        if (!WorldGuardHook.canPlace(e.getPlayer(), e.getBlock().getLocation())) {
+        //if (!WorldGuardHook.canPlace(e.getPlayer(), e.getBlock().getLocation())) {
             e.setCancelled(false);
             e.setBuild(true);
-        }
+        //}
 
         for (BlockState state : e.getReplacedBlockStates()) {
             if (plot != pm.getPlotAt(state.getLocation())) {
@@ -405,7 +468,7 @@ public class PlotBlocksListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockForm(BlockSpreadEvent e) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -415,7 +478,7 @@ public class PlotBlocksListener implements Listener {
     }
 
     /// Source code: PlotSquared v6
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPistonExtend(BlockPistonExtendEvent event) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -465,12 +528,12 @@ public class PlotBlocksListener implements Listener {
             return;
         }
 
-        if (!GriefPreventionHook.isPistonsEnabled(plot)) {
+        //if (!GriefPreventionHook.isPistonsEnabled(plot)) {
             event.setCancelled(false);
-        }
+        //}
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPistonRetract(BlockPistonRetractEvent event) {
         PlotManager pm = plugin.getPlotManager();
 
@@ -520,8 +583,8 @@ public class PlotBlocksListener implements Listener {
             return;
         }
 
-        if (!GriefPreventionHook.isPistonsEnabled(plot)) {
+        //if (!GriefPreventionHook.isPistonsEnabled(plot)) {
             event.setCancelled(false);
-        }
+        //}
     }
 }

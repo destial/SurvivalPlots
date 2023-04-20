@@ -99,6 +99,19 @@ public class PlotPlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent e) {
+        if (!e.getPlayer().hasPermission("svplots.user.fly.bypass") && e.getPlayer().getAllowFlight()) {
+            e.getPlayer().sendMessage(color("&cYour flight has been disabled because you teleported!"));
+            e.getPlayer().setAllowFlight(false);
+            e.getPlayer().setFlying(false);
+
+            if (e.getTo().getWorld() != e.getFrom().getWorld()) {
+                plugin.getScheduler().runTaskLater(() -> {
+                    e.getPlayer().setAllowFlight(false);
+                    e.getPlayer().setFlying(false);
+                }, e.getFrom(), 5L);
+            }
+            return;
+        }
         onPlayerMove(e);
     }
 

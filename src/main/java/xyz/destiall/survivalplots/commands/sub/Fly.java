@@ -8,8 +8,6 @@ import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
-import static xyz.destiall.survivalplots.commands.PlotCommand.color;
-
 public class Fly extends SubCommand {
     public Fly() {
         super("user.fly");
@@ -17,32 +15,30 @@ public class Fly extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(color("&cYou need to be a player!"));
+        if (!checkPlayer(sender))
             return;
-        }
 
-        SurvivalPlot plot = plugin.getPlotManager().getPlotAt(((Player) sender).getLocation());
+        Player player = (Player) sender;
+        SurvivalPlot plot = plugin.getPlotManager().getPlotAt(player.getLocation());
         if (plot == null) {
-            sender.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get((Player) sender, null));
+            player.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get(player, null));
             return;
         }
 
-        PlotPlayer player = plugin.getPlotPlayerManager().getPlotPlayer((Player) sender);
-        if (plot.getOwner() != player && (!plot.hasFlag(PlotFlags.MEMBER_FLY) || !player.isMember(plot))) {
-            sender.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get((Player) sender, plot));
+        PlotPlayer plotPlayer = plugin.getPlotPlayerManager().getPlotPlayer(player);
+        if (plot.getOwner() != plotPlayer && (!plot.hasFlag(PlotFlags.MEMBER_FLY) || !plotPlayer.isMember(plot))) {
+            player.sendMessage(Messages.Key.NO_PERMS_ON_PLOT.get(player, plot));
             return;
         }
 
-        Player p = (Player) sender;
-        if (p.getAllowFlight()) {
-            p.setFlying(false);
-            p.setAllowFlight(false);
+        if (player.getAllowFlight()) {
+            player.setFlying(false);
+            player.setAllowFlight(false);
         } else {
-            p.setAllowFlight(true);
-            p.setFlying(true);
+            player.setAllowFlight(true);
+            player.setFlying(true);
         }
 
-        sender.sendMessage(color(((Player) sender).isFlying() ? "&aYou can now fly in this plot!" : "&aYou have stopped flying in this plot!"));
+        player.sendMessage(color(player.isFlying() ? "&aYou can now fly in this plot!" : "&aYou have stopped flying in this plot!"));
     }
 }

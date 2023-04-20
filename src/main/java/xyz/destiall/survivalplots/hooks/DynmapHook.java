@@ -13,6 +13,7 @@ import xyz.destiall.survivalplots.plot.PlotFlags;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +24,10 @@ public class DynmapHook {
     private static DynmapAPI api = null;
     private static MarkerSet plotMarker = null;
     private static AreaStyle areaStyle = null;
-    private static int updatePeriod = 300;
+    private static int updatePeriod = 10;
+    private static Duration expiryDate;
 
-    private static String infoWindow = "<div class=\"infowindow\"><span style=\"font-size:120%;\">Owner: %owner%</span><br />Members: <span style=\"font-weight:bold;\">%members%</span><br />Description: <span style=\"font-weight:bold;\">%description%</span></div>";
+    private static String infoWindow = "<div class=\"infowindow\"><span style=\"font-size:120%;\">Owner: %owner%</span><br /> Members: <span style=\"font-weight:bold;\">%members%</span><br /> Description: <span style=\"font-weight:bold;\">%description%</span><br /> Expiry: <span style=\"font-weight:bold;\">%expiry%</span></div>";
 
     private DynmapHook() {}
 
@@ -49,15 +51,18 @@ public class DynmapHook {
         YamlConfiguration config = new YamlConfiguration();
         if (!configFile.exists()) {
             config.set("label", "Plots");
-            config.set("hide-by-default", true);
+            config.set("hide-by-default", false);
             config.set("update-period", updatePeriod);
             config.set("info-window", infoWindow);
-            config.set("area-style.stroke-color", "FF0000");
+            config.set("expiry-date", "10d");
+            config.set("area-style.stroke-color", "00FF00");
             config.set("area-style.owned-stroke-color", "FF00FF");
+            config.set("area-style.expiry-stroke-color", "FF0000");
             config.set("area-style.stroke-opacity", 0.8);
             config.set("area-style.stroke-weight", 3);
-            config.set("area-style.fill-color", "FF0000");
+            config.set("area-style.fill-color", "00FF00");
             config.set("area-style.owned-fill-color", "FF00FF");
+            config.set("area-style.expiry-fill-color", "FF0000");
             config.set("area-style.fill-opacity", 0.35);
             try {
                 config.save(configFile);
@@ -83,6 +88,7 @@ public class DynmapHook {
         plotMarker.setHideByDefault(config.getBoolean("hide-by-default"));
         updatePeriod = config.getInt("update-period", updatePeriod);
         areaStyle = new AreaStyle(config, "area-style");
+        expiryDate = SurvivalPlotsPlugin.getDuration(config.getString("expiry-date", "10d"));
 
         startUpdater();
     }
@@ -140,42 +146,75 @@ public class DynmapHook {
         private int ownedfillcolor;
         private int ownedstrokecolor;
 
+        private int expiryfillcolor;
+        private int expirystrokecolor;
+
         AreaStyle(FileConfiguration cfg, String path) {
-            String sc = cfg.getString(path+".stroke-color", null);
-            strokeopacity = cfg.getDouble(path+".stroke-opacity", -1);
-            strokeweight = cfg.getInt(path+".stroke-weight", -1);
-            String fc = cfg.getString(path+".fill-color", null);
-            String ofc = cfg.getString(path+".owned-fill-color", null);
-            String osc = cfg.getString(path+".owned-stroke-color", null);
+            String sc = cfg.getString(path + ".stroke-color", null);
+            strokeopacity = cfg.getDouble(path + ".stroke-opacity", -1);
+            strokeweight = cfg.getInt(path + ".stroke-weight", -1);
+            String fc = cfg.getString(path + ".fill-color", null);
+            String ofc = cfg.getString(path + ".owned-fill-color", null);
+            String osc = cfg.getString(path + ".owned-stroke-color", null);
+            String efc = cfg.getString(path + ".expiry-fill-color", null);
+            String esc = cfg.getString(path + ".expiry-stroke-color", null);
 
             strokecolor = -1;
             fillcolor = -1;
+            ownedfillcolor = -1;
+            ownedstrokecolor = -1;
+            expiryfillcolor = -1;
+            expirystrokecolor = -1;
             try {
-                if(sc != null)
+                if (sc != null)
                     strokecolor = Integer.parseInt(sc, 16);
-                if(fc != null)
+                if (fc != null)
                     fillcolor = Integer.parseInt(fc, 16);
-                if(osc != null)
+                if (osc != null)
                     ownedstrokecolor = Integer.parseInt(osc, 16);
-                if(ofc != null)
+                if (ofc != null)
                     ownedfillcolor = Integer.parseInt(ofc, 16);
+                if (efc != null)
+                    expiryfillcolor = Integer.parseInt(efc, 16);
+                if (esc != null)
+                    expirystrokecolor = Integer.parseInt(esc, 16);
             } catch (NumberFormatException ignored) {}
 
             fillopacity = cfg.getDouble(path+".fill-opacity", -1);
         }
 
         public int getStrokeColor(SurvivalPlot plot) {
-            return plot.getOwner() == null ? (strokecolor >= 0 ? strokecolor : 0xFF0000) : (ownedstrokecolor >= 0 ? ownedstrokecolor : 0xFF0000);
+            if (plot.getOwner() == null) {
+                return (strokecolor >= 0 ? strokecolor : 0xFF0000);
+            }
+
+            Duration relative = SurvivalPlotsPlugin.relativeDuration(plot.getExpiryDate());
+            if (relative.minus(expiryDate).isNegative()) {
+                return (expirystrokecolor >= 0 ? expirystrokecolor : 0xFF0000);
+            }
+            return (ownedstrokecolor >= 0 ? ownedstrokecolor : 0xFF0000);
         }
+
         public double getStrokeOpacity() {
             return strokeopacity >= 0 ? strokeopacity : 0.8;
         }
+
         public int getStrokeWeight() {
             return strokeweight >= 0 ? strokeweight : 3;
         }
+
         public int getFillColor(SurvivalPlot plot) {
-            return plot.getOwner() == null ? (fillcolor >= 0 ? fillcolor : 0xFF0000) : (ownedfillcolor >= 0 ? ownedfillcolor : 0xFF0000);
+            if (plot.getOwner() == null) {
+                return (fillcolor >= 0 ? fillcolor : 0xFF0000);
+            }
+
+            Duration relative = SurvivalPlotsPlugin.relativeDuration(plot.getExpiryDate());
+            if (relative.minus(expiryDate).isNegative()) {
+                return (expiryfillcolor >= 0 ? expiryfillcolor : 0xFF0000);
+            }
+            return (ownedfillcolor >= 0 ? ownedfillcolor : 0xFF0000);
         }
+
         public double getFillOpacity() {
             return fillopacity >= 0 ? fillopacity : 0.35;
         }

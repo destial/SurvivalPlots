@@ -56,8 +56,9 @@ public class Messages {
 
     private static String format(Key key, Player player, SurvivalPlot plot) {
         String message = getMessage(key);
-        message = message.replace("{player}", player.getName());
-        if (plot == null)
+        if (player != null)
+            message = message.replace("{player}", player.getName());
+        if (plot == null && player != null)
             plot = SurvivalPlotsPlugin.getInst().getPlotManager().getPlotAt(player.getLocation());
 
         message = message.replace("{plotmoney}", SurvivalPlotsPlugin.getInst().getEconomyManager().getEconomyMaterial().name());
@@ -93,6 +94,7 @@ public class Messages {
         INFO("&6Plot Info:\n&6Owner: {plotowner}\n&6Members: {plotmembers}\n&6ID: {plotid}"),
         NO_PERMS_ON_PLOT("&cYou do not own this plot!"),
         NOT_STANDING_ON_PLOT("&cYou are not standing on a plot!"),
+        NO_AVAILABLE_PLOTS("&cThere are no available plots!"),
 
         ;
         private final String defaultMessage;

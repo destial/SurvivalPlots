@@ -2,6 +2,7 @@ package xyz.destiall.survivalplots.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 
@@ -51,5 +52,17 @@ public abstract class SubCommand {
 
     public List<String> tab(CommandSender sender, String[] args) {
         return Collections.emptyList();
+    }
+
+    public final String color(String s) {
+        return PlotCommand.color(s);
+    }
+
+    public boolean checkPlayer(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(color("&cYou need to be a player!"));
+            return false;
+        }
+        return true;
     }
 }

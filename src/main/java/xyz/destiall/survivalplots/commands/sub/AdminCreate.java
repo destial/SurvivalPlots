@@ -9,8 +9,6 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import java.util.Arrays;
 
-import static xyz.destiall.survivalplots.commands.PlotCommand.color;
-
 public class AdminCreate extends SubCommand {
     public AdminCreate() {
         super("admin");
@@ -18,22 +16,21 @@ public class AdminCreate extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(color("&cYou need to be a player!"));
+        if (!checkPlayer(sender))
             return;
-        }
 
-        BoundingBox selection = WorldEditHook.getSelection((Player) sender);
+        Player player = (Player) sender;
+        BoundingBox selection = WorldEditHook.getSelection(player);
         if (selection == null) {
-            sender.sendMessage(color("&cYou do not have a complete selection!"));
+            player.sendMessage(color("&cYou do not have a complete selection!"));
             return;
         }
 
         boolean fullHeight = Arrays.stream(args).noneMatch(a -> a.equalsIgnoreCase("-s"));
 
-        SurvivalPlot plot = plugin.getPlotManager().createPlot(((Player) sender).getWorld(), selection, fullHeight);
+        SurvivalPlot plot = plugin.getPlotManager().createPlot(player.getWorld(), selection, fullHeight);
 
-        sender.sendMessage(color("&aCreated plot " + plot.getId() + " in " + plot.getWorld().getName()));
+        player.sendMessage(color("&aCreated plot " + plot.getId() + " in " + plot.getWorld().getName()));
 
         WorldEditHook.backupPlot(plot, "default");
     }
