@@ -7,8 +7,10 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.economy.Bank;
+import xyz.destiall.survivalplots.events.PlotSellEvent;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
@@ -37,6 +39,11 @@ public class Sell extends SubCommand {
         PlotPlayer plotPlayer = plugin.getPlotPlayerManager().getPlotPlayer(player);
         if (plot.getOwner() != plotPlayer) {
             player.sendMessage(color("&cThis plot is not available to sell!"));
+            return;
+        }
+
+        if (!new PlotSellEvent(plot).callEvent()) {
+            SurvivalPlotsPlugin.getInst().info("PlotSellEvent was cancelled, skipping selling plot...");
             return;
         }
 

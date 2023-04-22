@@ -4,7 +4,7 @@ main: xyz.destiall.survivalplots.SurvivalPlotsPlugin
 api-version: 1.19
 folia-supported: true
 depend: [ WorldEdit ]
-softdepend: [ WorldGuard, FastAsyncWorldEdit, dynmap, GriefPrevention, PlaceholderAPI, Parties ]
+softdepend: [ WorldGuard, FastAsyncWorldEdit, dynmap, GriefPrevention, PlaceholderAPI, Parties, Shopkeepers ]
 authors: [ destiall ]
 description: Make plots in your survival world
 load: POSTWORLD

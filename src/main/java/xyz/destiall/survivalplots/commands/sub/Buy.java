@@ -4,9 +4,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import xyz.destiall.survivalplots.Messages;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.economy.Bank;
 import xyz.destiall.survivalplots.economy.EconomyManager;
+import xyz.destiall.survivalplots.events.PlotBuyEvent;
 import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
@@ -61,11 +63,18 @@ public class Buy extends SubCommand {
         EconomyManager econ = plugin.getEconomyManager();
         Bank account = econ.getBank(player);
 
-        if (!account.withdraw(econ.getPlotCost())) {
+        if (!account.has(econ.getPlotCost())) {
             player.sendMessage(color("&cYou do not have enough to purchase this plot!"));
             player.sendMessage(color("&cCost: " + econ.getPlotCost() + " " + econ.getEconomyMaterial().name()));
             return;
         }
+
+        if (!new PlotBuyEvent(plot).callEvent()) {
+            SurvivalPlotsPlugin.getInst().info("PlotBuyEvent was cancelled, skipping buying plot...");
+            return;
+        }
+
+        account.withdraw(econ.getPlotCost());
 
         player.sendMessage(color("&eYou spent " + econ.getPlotCost() + " " + econ.getEconomyMaterial().name() + " to buy this plot!"));
 

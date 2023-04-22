@@ -7,7 +7,10 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
+import xyz.destiall.survivalplots.events.PlotSellEvent;
+import xyz.destiall.survivalplots.events.PlotTransferEvent;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
@@ -52,6 +55,11 @@ public class Transfer extends SubCommand {
 
         if (plot.getOwner() == newOwner) {
             player.sendMessage(color("&cYou cannot transfer this plot to yourself!"));
+            return;
+        }
+
+        if (!new PlotTransferEvent(plot, newOwner).callEvent()) {
+            SurvivalPlotsPlugin.getInst().info("PlotTransferEvent was cancelled, skipping transfer plot...");
             return;
         }
 

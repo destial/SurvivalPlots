@@ -8,6 +8,7 @@ import xyz.destiall.survivalplots.hooks.DynmapHook;
 import xyz.destiall.survivalplots.hooks.GriefPreventionHook;
 import xyz.destiall.survivalplots.hooks.PartiesHook;
 import xyz.destiall.survivalplots.hooks.PlaceholderAPIHook;
+import xyz.destiall.survivalplots.hooks.ShopkeepersHook;
 import xyz.destiall.survivalplots.hooks.WorldGuardHook;
 import xyz.destiall.survivalplots.listeners.PlotBlocksListener;
 import xyz.destiall.survivalplots.listeners.PlotInventoryListener;
@@ -47,6 +48,7 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
         GriefPreventionHook.check();
         PlaceholderAPIHook.check();
         PartiesHook.check();
+        ShopkeepersHook.check();
 
         Messages.init(this);
     }
@@ -59,16 +61,11 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
         PlaceholderAPIHook.disable();
 
         getCommand("svplots").setExecutor(null);
-        getScheduler().cancelTasks();
+        scheduler.cancelTasks();
     }
 
     public void reload() {
-        HandlerList.unregisterAll(this);
-
-        plotManager.update();
-        plotManager.disable();
-        getCommand("svplots").setExecutor(null);
-
+        onDisable();
         onEnable();
     }
 

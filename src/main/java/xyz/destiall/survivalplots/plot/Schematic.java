@@ -39,6 +39,7 @@ import java.util.zip.GZIPOutputStream;
 public class Schematic {
     private Clipboard clipboard;
     private CompletableFuture<Clipboard> board;
+    private File file;
 
     public Schematic(SurvivalPlot plot, final Clipboard clip) {
         this.clipboard = clip;
@@ -60,6 +61,8 @@ public class Schematic {
     public Schematic(File file) {
         if (!file.exists())
             return;
+
+        this.file = file;
 
         ClipboardFormat format = ClipboardFormats.findByFile(file);
         if (format != null) {
@@ -84,6 +87,7 @@ public class Schematic {
     }
 
     public void save(CompoundTag tag, File file) {
+        this.file = file;
         if (SurvivalPlotsPlugin.getInst().getConfig().getBoolean("async-file-operations")) {
             SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> {
                 try (NBTOutputStream nbtStream = new NBTOutputStream(new GZIPOutputStream(Files.newOutputStream(file.toPath())))) {
@@ -287,6 +291,12 @@ public class Schematic {
     }
 
     public CompletableFuture<Clipboard> getAsyncClipboard() {
+        if (board == null)
+            return CompletableFuture.completedFuture(clipboard);
         return board;
+    }
+
+    public File getFile() {
+        return file;
     }
 }

@@ -104,7 +104,8 @@ public class PlotPlayer {
         if (confirmation == null)
             return false;
 
-        confirmationTimer.cancel();
+        if (confirmationTimer != null)
+            confirmationTimer.cancel();
         confirmationTimer = null;
 
         confirmation.run();

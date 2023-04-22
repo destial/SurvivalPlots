@@ -19,6 +19,9 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
+import xyz.destiall.survivalplots.events.PlotExpireEvent;
+import xyz.destiall.survivalplots.events.PlotLoadEvent;
+import xyz.destiall.survivalplots.hooks.ShopkeepersHook;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 
@@ -101,6 +104,12 @@ public class SurvivalPlot {
                 if (player.isOnline()) {
                     updateExpiry();
                     SurvivalPlotsPlugin.getInst().getPlotManager().update();
+                    return;
+                }
+
+                if (!new PlotExpireEvent(SurvivalPlot.this).callEvent()) {
+                    updateExpiry();
+                    SurvivalPlotsPlugin.getInst().info("PlotExpireEvent was cancelled, re-updating expiry date...");
                     return;
                 }
 
@@ -388,9 +397,16 @@ public class SurvivalPlot {
             }
         }
 
+        if (!new PlotLoadEvent(this, schematic).callEvent()) {
+            SurvivalPlotsPlugin.getInst().info("PlotLoadEvent was cancelled, skipped loading schematic...");
+            return true;
+        }
+
         getCenter().getWorld().getNearbyEntities(bounds).forEach(en -> {
             if (!(en instanceof Player)) {
                 en.remove();
+
+                ShopkeepersHook.removeEntity(en);
             }
         });
 

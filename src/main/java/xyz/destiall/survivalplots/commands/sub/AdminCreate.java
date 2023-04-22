@@ -30,8 +30,10 @@ public class AdminCreate extends SubCommand {
 
         SurvivalPlot plot = plugin.getPlotManager().createPlot(player.getWorld(), selection, fullHeight);
 
-        player.sendMessage(color("&aCreated plot " + plot.getId() + " in " + plot.getWorld().getName()));
+        if (plot == null)
+            return;
 
+        player.sendMessage(color("&aCreated plot " + plot.getId() + " in " + plot.getWorld().getName()));
         WorldEditHook.backupPlot(plot, "default");
     }
 }

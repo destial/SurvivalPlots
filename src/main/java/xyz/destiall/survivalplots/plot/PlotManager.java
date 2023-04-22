@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
+import xyz.destiall.survivalplots.events.PlotCreateEvent;
+import xyz.destiall.survivalplots.events.PlotDeleteEvent;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -96,6 +98,11 @@ public class PlotManager {
 
         SurvivalPlot plot = new SurvivalPlot(id, box, world.getName());
 
+        if (!new PlotCreateEvent(plot).callEvent()) {
+            plugin.info("PlotCreateEvent was cancelled, skipping plot creation...");
+            return null;
+        }
+
         plot.addToConfig(plotsConfig);
         plots.add(plot);
         saveToFile();
@@ -112,19 +119,27 @@ public class PlotManager {
     }
 
     public boolean deletePlot(SurvivalPlot plot) {
-        if (plots.remove(plot)) {
-            plotsConfig.set("plots." + plot.getId(), null);
-            plot.disableExpiryTimer();
-            saveToFile();
-            File plotsBackup = new File(SurvivalPlotsPlugin.getInst().getDataFolder(), "backups" + File.separator + plot.getId() + File.separator);
-            if (plotsBackup.exists()) {
-                if (plugin.getConfig().getBoolean("async-file-operations")) {
-                    SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> delete(plotsBackup), plot.getCenter());
-                } else {
-                    delete(plotsBackup);
-                }
+        if (!new PlotDeleteEvent(plot).callEvent()) {
+            plugin.info("PlotDeleteEvent was cancelled, skipping plot deletion...");
+            return false;
+        }
+
+        if (!plots.remove(plot)) {
+            return false;
+        }
+
+        plotsConfig.set("plots." + plot.getId(), null);
+        plot.disableExpiryTimer();
+        saveToFile();
+        File plotsBackup = new File(SurvivalPlotsPlugin.getInst().getDataFolder(), "backups" + File.separator + plot.getId() + File.separator);
+        if (plotsBackup.exists()) {
+            if (plugin.getConfig().getBoolean("async-file-operations")) {
+                SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> delete(plotsBackup), plot.getCenter());
+            } else {
+                delete(plotsBackup);
             }
         }
+
         return true;
     }
 
@@ -132,6 +147,7 @@ public class PlotManager {
         for (SurvivalPlot plot : plots) {
             plot.disableExpiryTimer();
         }
+        plots.clear();
     }
 
     public void update() {
@@ -169,10 +185,14 @@ public class PlotManager {
 
     public static void delete(File f) {
         if (f.isDirectory()) {
-            for (File c : f.listFiles()) {
+            for (File c : Objects.requireNonNull(f.listFiles())) {
                 delete(c);
             }
         }
-        f.delete();
+        try {
+            f.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

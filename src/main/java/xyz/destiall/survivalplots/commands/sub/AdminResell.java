@@ -7,7 +7,9 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
+import xyz.destiall.survivalplots.events.PlotSellEvent;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
@@ -33,6 +35,11 @@ public class AdminResell extends SubCommand {
 
         if (plot == null) {
             player.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get(player, null));
+            return;
+        }
+
+        if (!new PlotSellEvent(plot).callEvent()) {
+            SurvivalPlotsPlugin.getInst().info("PlotSellEvent was cancelled, skipping selling plot...");
             return;
         }
 

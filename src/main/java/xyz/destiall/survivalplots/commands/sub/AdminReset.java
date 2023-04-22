@@ -7,7 +7,9 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
+import xyz.destiall.survivalplots.events.PlotResetEvent;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotManager;
@@ -31,6 +33,11 @@ public class AdminReset extends SubCommand {
 
         if (plot == null) {
             player.sendMessage(Messages.Key.NOT_STANDING_ON_PLOT.get(player, null));
+            return;
+        }
+
+        if (!new PlotResetEvent(plot).callEvent()) {
+            SurvivalPlotsPlugin.getInst().info("PlotResetEvent was cancelled, skipping reset plot...");
             return;
         }
 

@@ -3,7 +3,9 @@ package xyz.destiall.survivalplots.commands.sub;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
+import xyz.destiall.survivalplots.events.PlotBanEvent;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
 import xyz.destiall.survivalplots.plot.PlotManager;
@@ -45,6 +47,11 @@ public class Ban extends SubCommand {
         Player toBan = plugin.getServer().getPlayer(name);
         if (toBan == null) {
             player.sendMessage(color("&cPlayer is not online!"));
+            return;
+        }
+
+        if (!new PlotBanEvent(plot, plugin.getPlotPlayerManager().getPlotPlayer(toBan)).callEvent()) {
+            SurvivalPlotsPlugin.getInst().info("PlotBanEvent was cancelled, skipping banning player...");
             return;
         }
 
