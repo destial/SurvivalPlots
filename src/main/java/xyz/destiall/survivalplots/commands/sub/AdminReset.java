@@ -10,6 +10,7 @@ import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.events.PlotResetEvent;
+import xyz.destiall.survivalplots.hooks.DynmapHook;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotManager;
@@ -53,6 +54,8 @@ public class AdminReset extends SubCommand {
                     player.sendMessage(color("&cUnable to reset plot " + plot.getId()));
                 }
             }
+
+            DynmapHook.updatePlot(plot);
         });
         TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm resetting this plot."));
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&aClick to confirm"))));

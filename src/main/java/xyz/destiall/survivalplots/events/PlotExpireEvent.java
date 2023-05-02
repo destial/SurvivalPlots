@@ -5,6 +5,6 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 public class PlotExpireEvent extends PlotEvent implements Cancellable {
     public PlotExpireEvent(SurvivalPlot plot) {
-        super(plot);
+        super(plot, true);
     }
 }

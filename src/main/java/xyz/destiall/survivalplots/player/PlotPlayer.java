@@ -124,9 +124,9 @@ public class PlotPlayer {
         confirmationTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                OfflinePlayer player = getPlayer();
-                if (player instanceof Player) {
-                    ((Player) player).sendMessage(color("&cYour confirmation has expired!"));
+                Player player = getOnlinePlayer();
+                if (player != null) {
+                    player.sendMessage(color("&cYour confirmation has expired!"));
                 }
 
                 PlotPlayer.this.confirmationTimer = null;

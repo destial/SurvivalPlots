@@ -23,6 +23,11 @@ public abstract class PlotEvent extends Event implements Cancellable {
         this.plot = plot;
     }
 
+    public PlotEvent(SurvivalPlot plot, boolean async) {
+        super(async);
+        this.plot = plot;
+    }
+
     public SurvivalPlot getPlot() {
         return plot;
     }
@@ -40,6 +45,6 @@ public abstract class PlotEvent extends Event implements Cancellable {
 
     public boolean callEvent() {
         Bukkit.getPluginManager().callEvent(this);
-        return isCancelled();
+        return !isCancelled();
     }
 }

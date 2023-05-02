@@ -17,6 +17,8 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 import java.io.File;
 
 public class WorldEditHook {
+    private WorldEditHook() {}
+
     public static BoundingBox getSelection(Player player) {
         try {
             Region selection = WorldEditPlugin.getPlugin(WorldEditPlugin.class).getSession(player).getSelection();

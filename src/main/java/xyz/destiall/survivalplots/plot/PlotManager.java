@@ -10,6 +10,8 @@ import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.events.PlotCreateEvent;
 import xyz.destiall.survivalplots.events.PlotDeleteEvent;
+import xyz.destiall.survivalplots.hooks.DynmapHook;
+import xyz.destiall.survivalplots.hooks.WorldGuardHook;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -128,6 +130,8 @@ public class PlotManager {
             return false;
         }
 
+        WorldGuardHook.removeRegion(plot);
+
         plotsConfig.set("plots." + plot.getId(), null);
         plot.disableExpiryTimer();
         saveToFile();
@@ -139,6 +143,8 @@ public class PlotManager {
                 delete(plotsBackup);
             }
         }
+
+        DynmapHook.updatePlot(plot);
 
         return true;
     }

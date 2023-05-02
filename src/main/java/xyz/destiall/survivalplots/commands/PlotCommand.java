@@ -13,6 +13,7 @@ import xyz.destiall.survivalplots.commands.sub.AdminDelete;
 import xyz.destiall.survivalplots.commands.sub.AdminReload;
 import xyz.destiall.survivalplots.commands.sub.AdminResell;
 import xyz.destiall.survivalplots.commands.sub.AdminReset;
+import xyz.destiall.survivalplots.commands.sub.AdminWG;
 import xyz.destiall.survivalplots.commands.sub.Ban;
 import xyz.destiall.survivalplots.commands.sub.Buy;
 import xyz.destiall.survivalplots.commands.sub.Confirm;
@@ -50,6 +51,7 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         subCommands.put("adminreset", new AdminReset());
         subCommands.put("adminreload", new AdminReload());
         subCommands.put("adminresell", new AdminResell());
+        subCommands.put("adminwg", new AdminWG());
 
         subCommands.put("ban", new Ban());
         subCommands.put("buy", new Buy());

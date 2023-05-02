@@ -7,7 +7,7 @@ import xyz.destiall.survivalplots.plot.SurvivalPlot;
 public class PlotLoadEvent extends PlotEvent implements Cancellable {
     private final Schematic schematic;
     public PlotLoadEvent(SurvivalPlot plot, Schematic schematic) {
-        super(plot);
+        super(plot, true);
         this.schematic = schematic;
     }
 

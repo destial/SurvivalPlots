@@ -11,6 +11,7 @@ import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
 import xyz.destiall.survivalplots.economy.Bank;
 import xyz.destiall.survivalplots.events.PlotSellEvent;
+import xyz.destiall.survivalplots.hooks.DynmapHook;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotFlags;
@@ -76,6 +77,8 @@ public class Sell extends SubCommand {
             plot.getFlags().addAll(PlotFlags.def());
             plot.disableExpiryTimer();
             plot.setOwner("N/A");
+
+            DynmapHook.updatePlot(plot);
         });
 
         TextComponent component = new TextComponent(color("&eType &6/plot confirm &eto confirm selling your plot."));

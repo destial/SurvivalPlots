@@ -11,16 +11,20 @@ public class PartiesHook {
     private static boolean enabled = false;
     private static PartiesAPI api;
 
+    private PartiesHook() {}
+
     public static void check() {
         enabled = Bukkit.getServer().getPluginManager().isPluginEnabled("Parties");
-        if (!enabled) return;
+        if (!enabled)
+            return;
 
         SurvivalPlotsPlugin.getInst().info("Hooked into Parties");
         api = Parties.getApi();
     }
 
     public static boolean sameParty(OfflinePlayer one, OfflinePlayer two) {
-        if (!enabled) return false;
+        if (!enabled)
+            return false;
 
         Party partyOne = api.getParty(one.getUniqueId());
         return partyOne != null && partyOne == api.getParty(two.getUniqueId());

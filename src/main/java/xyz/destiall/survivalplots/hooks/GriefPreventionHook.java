@@ -10,6 +10,8 @@ public class GriefPreventionHook {
     private static boolean enabled = false;
     private static GriefPrevention gp;
 
+    private GriefPreventionHook() {}
+
     public static void check() {
         enabled = Bukkit.getPluginManager().isPluginEnabled("GriefPrevention");
         if (!enabled)

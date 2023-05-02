@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DynmapHook {
+    private static boolean enabled = false;
     private static DynmapAPI api = null;
     private static MarkerSet plotMarker = null;
     private static AreaStyle areaStyle = null;
@@ -37,6 +38,7 @@ public class DynmapHook {
         if (plug == null)
             return;
 
+        enabled = true;
         SurvivalPlotsPlugin.getInst().info("Hooked into dynmap");
 
         api = (DynmapAPI) plug;
@@ -44,7 +46,7 @@ public class DynmapHook {
     }
 
     private static void register() {
-        if (api == null)
+        if (!enabled)
             return;
 
         File configFile = new File(SurvivalPlotsPlugin.getInst().getDataFolder(), "dynmap.yml");
@@ -94,8 +96,13 @@ public class DynmapHook {
     }
 
     private static void startUpdater() {
-        Map<Integer, AreaMarker> areaMarkers = new HashMap<>();
-        SurvivalPlotsPlugin.getInst().getScheduler().runTaskTimerAsync(() -> {
+        if (!enabled)
+            return;
+
+        final Map<Integer, AreaMarker> areaMarkers = new HashMap<>();
+        final SurvivalPlotsPlugin plugin = SurvivalPlotsPlugin.getInst();
+
+        plugin.getScheduler().runTaskTimerAsync(() -> {
             List<Integer> notUpdated = new ArrayList<>(areaMarkers.keySet());
             for (SurvivalPlot plot : SurvivalPlotsPlugin.getInst().getPlotManager().getAllPlots()) {
                 AreaMarker areaMarker = areaMarkers.get(plot.getId());
@@ -106,14 +113,12 @@ public class DynmapHook {
                     areaMarkers.put(plot.getId(), areaMarker);
                 }
                 if (areaMarker == null) {
-                    areaMarker = plotMarker.createAreaMarker("plot.area." + plot.getId(), "" + plot.getId(), false, plot.getWorld().getName(), x, z, false);
+                    areaMarker = plotMarker.createAreaMarker("plot.area." + plot.getId(), String.valueOf(plot.getId()), false, plot.getWorld().getName(), x, z, false);
                     areaMarkers.put(plot.getId(), areaMarker);
                 }
-                areaMarker.setCornerLocations(x, z);
-                areaMarker.setLineStyle(areaStyle.getStrokeWeight(), areaStyle.getStrokeOpacity(), areaStyle.getStrokeColor(plot));
-                areaMarker.setFillStyle(areaStyle.getFillOpacity(), areaStyle.getFillColor(plot));
-                areaMarker.setDescription(formatInfoWindow(plot));
 
+                updatePlot(plot, areaMarker);
+                render(plot);
                 notUpdated.remove((Object) plot.getId());
             }
 
@@ -123,10 +128,41 @@ public class DynmapHook {
         }, 20L, updatePeriod * 20L);
     }
 
+    public static void updatePlot(SurvivalPlot plot) {
+        updatePlot(plot, null);
+    }
+
+    public static void updatePlot(SurvivalPlot plot, AreaMarker areaMarker) {
+        if (!enabled)
+            return;
+
+        if (areaMarker == null) {
+            areaMarker = plotMarker.findAreaMarker("plot.area." + plot.getId());
+            if (areaMarker == null)
+                return;
+        }
+
+        double[] x = new double[] {plot.getMin().getBlockX(), plot.getMax().getBlockX() + 1};
+        double[] z = new double[] {plot.getMin().getBlockZ(), plot.getMax().getBlockZ() + 1};
+        areaMarker.setCornerLocations(x, z);
+        areaMarker.setLineStyle(areaStyle.getStrokeWeight(), areaStyle.getStrokeOpacity(), areaStyle.getStrokeColor(plot));
+        areaMarker.setFillStyle(areaStyle.getFillOpacity(), areaStyle.getFillColor(plot));
+        areaMarker.setDescription(formatInfoWindow(plot));
+
+        render(plot);
+    }
+
+    public static void render(SurvivalPlot plot) {
+        if (!enabled)
+            return;
+
+        api.triggerRenderOfVolume(plot.getMin(), plot.getMax());
+    }
+
     private static String formatInfoWindow(SurvivalPlot plot) {
         String v = "<div class=\"regioninfo\">" + infoWindow + "</div>";
         v = v.replace("%owner%", plot.getRawOwner());
-        v = v.replace("%id%", "" + plot.getId());
+        v = v.replace("%id%", String.valueOf(plot.getId()));
         v = v.replace("%description%", plot.getDescription());
         v = v.replace("%members%", plot.getMembers().size() > 0 ? String.join(", ", plot.getMembers()) : "None");
         v = v.replace("%banned%", plot.getBanned().size() > 0 ? String.join(", ", plot.getBanned()) : "None");

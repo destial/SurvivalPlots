@@ -21,6 +21,7 @@ import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.events.PlotExpireEvent;
 import xyz.destiall.survivalplots.events.PlotLoadEvent;
+import xyz.destiall.survivalplots.hooks.DynmapHook;
 import xyz.destiall.survivalplots.hooks.ShopkeepersHook;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
@@ -85,6 +86,14 @@ public class SurvivalPlot {
                 scheduleExpiry();
             }
         }
+
+        if (section.contains("home")) {
+            try {
+                home = section.getLocation("home");
+            } catch (Exception e) {
+                SurvivalPlotsPlugin.getInst().warning(worldName + " is not loaded!");
+            }
+        }
     }
 
     public void scheduleExpiry() {
@@ -123,13 +132,17 @@ public class SurvivalPlot {
                         return;
                     }
                 }
+                expiry = null;
                 setExpiryDate(null);
                 disableExpiryTimer();
                 getMembers().clear();
                 getBanned().clear();
                 getFlags().clear();
-                getFlags().addAll(PlotFlags.def());
                 setOwner("N/A");
+                getFlags().addAll(PlotFlags.def());
+
+                DynmapHook.updatePlot(SurvivalPlot.this);
+
             }
         }, expiryDate);
     }
@@ -154,6 +167,7 @@ public class SurvivalPlot {
         config.set("plots." + id + ".owner", owner);
         config.set("plots." + id + ".expiry", expiryDate != null ? expiryDate.getTime() : 0);
         config.set("plots." + id + ".description", description);
+        config.set("plots." + id + ".home", home);
     }
 
     public boolean contains(Vector pos) {
@@ -402,13 +416,14 @@ public class SurvivalPlot {
             return true;
         }
 
-        getCenter().getWorld().getNearbyEntities(bounds).forEach(en -> {
-            if (!(en instanceof Player)) {
-                en.remove();
-
-                ShopkeepersHook.removeEntity(en);
-            }
-        });
+        SurvivalPlotsPlugin.getInst().getScheduler().runTask(() -> {
+            getCenter().getWorld().getNearbyEntities(bounds).forEach(en -> {
+                if (!(en instanceof Player)) {
+                    en.remove();
+                    ShopkeepersHook.removeEntity(en);
+                }
+            });
+        }, getCenter());
 
         final BlockVector3 dimension = clipboard.getDimensions();
         final int WIDTH = dimension.getX();
@@ -454,5 +469,9 @@ public class SurvivalPlot {
         }
 
         return true;
+    }
+
+    public void setHome(Location location) {
+        this.home = location;
     }
 }

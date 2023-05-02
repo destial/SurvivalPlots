@@ -9,8 +9,10 @@ import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 public class ShopkeepersHook {
     private static boolean enabled = false;
 
+    private ShopkeepersHook() {}
+
     public static void check() {
-        enabled = Bukkit.getPluginManager().getPlugin("Shopkeepers") != null;
+        enabled = Bukkit.getPluginManager().isPluginEnabled("Shopkeepers");
 
         if (!enabled)
             return;
@@ -31,4 +33,5 @@ public class ShopkeepersHook {
 
         shopkeeper.delete();
     }
+
 }
