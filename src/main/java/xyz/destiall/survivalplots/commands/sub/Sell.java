@@ -58,7 +58,7 @@ public class Sell extends SubCommand {
                     player.sendMessage(color("&aSuccessfully reset plot " + plot.getId()));
                     Bank bank = plugin.getEconomyManager().getBank(player);
                     int cost = plugin.getEconomyManager().getPlotCost() / 2;
-                    player.sendMessage(color("&aRefunded back " + cost + " " + plugin.getEconomyManager().getEconomyMaterial().name()));
+                    player.sendMessage(color("&aRefunded back " + plugin.getEconomyManager().formatCost(cost)));
                     bank.deposit(cost);
                     try {
                         player.teleportAsync(plot.getHome());

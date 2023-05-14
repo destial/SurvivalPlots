@@ -49,7 +49,7 @@ public class Reset extends SubCommand {
 
             if (!account.has(econ.getPlotReset())) {
                 player.sendMessage(color("&cYou do not have enough to reset this plot!"));
-                player.sendMessage(color("&cCost: " + econ.getPlotReset() + " " + econ.getEconomyMaterial().name()));
+                player.sendMessage(color("&cCost: " + econ.formattedPlotResetCost()));
                 return;
             }
 
@@ -60,7 +60,7 @@ public class Reset extends SubCommand {
 
             account.withdraw(econ.getPlotReset());
 
-            player.sendMessage(color("&eYou spent " + econ.getPlotReset() + " " + econ.getEconomyMaterial().name() + " to reset this plot!"));
+            player.sendMessage(color("&eYou spent " + econ.formattedPlotResetCost() + " to reset this plot!"));
 
             WorldEditHook.backupPlot(plot, plot.getOwner().getName());
             player.sendMessage(color("&aSuccessfully backed-up plot " + plot.getId()));
@@ -84,7 +84,7 @@ public class Reset extends SubCommand {
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(color("&aClick to confirm"))));
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot confirm"));
         player.sendMessage(component);
-        player.sendMessage(color("&eResetting costs " + econ.getPlotReset() + " " + econ.getEconomyMaterial().name()));
+        player.sendMessage(color("&eResetting costs " + econ.formattedPlotResetCost()));
         player.sendMessage(color("&cWARNING!! Resetting will reset your plot to its default state!"));
     }
 }

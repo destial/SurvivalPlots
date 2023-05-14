@@ -5,6 +5,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 public abstract class PlotEvent extends Event implements Cancellable {
@@ -44,6 +45,10 @@ public abstract class PlotEvent extends Event implements Cancellable {
     }
 
     public boolean callEvent() {
+        if (isAsynchronous()) {
+            SurvivalPlotsPlugin.getInst().getScheduler().runTaskAsync(() -> Bukkit.getPluginManager().callEvent(this));
+            return !isCancelled();
+        }
         Bukkit.getPluginManager().callEvent(this);
         return !isCancelled();
     }

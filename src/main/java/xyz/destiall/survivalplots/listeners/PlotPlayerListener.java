@@ -1,5 +1,6 @@
 package xyz.destiall.survivalplots.listeners;
 
+import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Animals;
@@ -126,6 +127,19 @@ public class PlotPlayerListener implements Listener {
         PlotPlayer player = ppm.getPlotPlayer(e.getPlayer());
         if (!player.canInteractEntity(plot)) {
             e.getPlayer().sendMessage(Messages.Key.NO_INTERACT.get(e.getPlayer(), plot));
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerBeacon(BeaconEffectEvent e) {
+        PlotManager pm = plugin.getPlotManager();
+        SurvivalPlot plot = pm.getPlotAt(e.getBlock().getLocation());
+        if (plot == null)
+            return;
+
+        SurvivalPlot plotAtPlayer = pm.getPlotAt(e.getPlayer().getLocation());
+        if (plot != plotAtPlayer) {
             e.setCancelled(true);
         }
     }

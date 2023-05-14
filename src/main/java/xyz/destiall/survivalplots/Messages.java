@@ -61,13 +61,13 @@ public class Messages {
         if (plot == null && player != null)
             plot = SurvivalPlotsPlugin.getInst().getPlotManager().getPlotAt(player.getLocation());
 
-        message = message.replace("{plotmoney}", SurvivalPlotsPlugin.getInst().getEconomyManager().getEconomyMaterial().name());
+        message = message.replace("{plotmoney}", SurvivalPlotsPlugin.getInst().getEconomyManager().getCurrency());
 
         if (plot != null) {
-            message = message.replace("{plotid}", ""+plot.getId());
-            message = message.replace("{plotowner}", ""+plot.getRawOwner());
-            message = message.replace("{plotcost}", plot.getOwner() == null ? ""+SurvivalPlotsPlugin.getInst().getEconomyManager().getPlotCost() : "N/A");
-            message = message.replace("{plotresetcost}", plot.getOwner() == null ? ""+SurvivalPlotsPlugin.getInst().getEconomyManager().getPlotReset() : "N/A");
+            message = message.replace("{plotid}", String.valueOf(plot.getId()));
+            message = message.replace("{plotowner}", plot.getRawOwner());
+            message = message.replace("{plotcost}", plot.getOwner() == null ? String.valueOf(SurvivalPlotsPlugin.getInst().getEconomyManager().getPlotCost()) : "N/A");
+            message = message.replace("{plotresetcost}", plot.getOwner() == null ? String.valueOf(SurvivalPlotsPlugin.getInst().getEconomyManager().getPlotReset()) : "N/A");
             message = message.replace("{plotmembers}", String.join(", ", plot.getMembers()));
             message = message.replace("{plotbanned}", String.join(", ", plot.getBanned()));
             message = message.replace("{plotdescription}", plot.getDescription());

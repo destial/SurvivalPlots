@@ -65,7 +65,7 @@ public class Buy extends SubCommand {
 
         if (!account.has(econ.getPlotCost())) {
             player.sendMessage(color("&cYou do not have enough to purchase this plot!"));
-            player.sendMessage(color("&cCost: " + econ.getPlotCost() + " " + econ.getEconomyMaterial().name()));
+            player.sendMessage(color("&cCost: " + econ.formattedPlotCost()));
             return;
         }
 
@@ -76,7 +76,7 @@ public class Buy extends SubCommand {
 
         account.withdraw(econ.getPlotCost());
 
-        player.sendMessage(color("&eYou spent " + econ.getPlotCost() + " " + econ.getEconomyMaterial().name() + " to buy this plot!"));
+        player.sendMessage(color("&eYou spent " + econ.formattedPlotCost() + " to buy this plot!"));
 
         plot.setOwner(player.getName());
         try {

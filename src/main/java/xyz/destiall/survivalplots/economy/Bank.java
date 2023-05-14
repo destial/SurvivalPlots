@@ -7,8 +7,8 @@ import org.bukkit.inventory.PlayerInventory;
 import java.util.Map;
 
 public class Bank {
-    private final EconomyManager economyManager;
-    private final Player player;
+    protected final EconomyManager economyManager;
+    protected final Player player;
 
     public Bank(EconomyManager economyManager, Player player) {
         this.economyManager = economyManager;

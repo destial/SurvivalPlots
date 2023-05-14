@@ -6,6 +6,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
@@ -56,6 +57,29 @@ public class Transfer extends SubCommand {
         if (plot.getOwner() == newOwner) {
             player.sendMessage(color("&cYou cannot transfer this plot to yourself!"));
             return;
+        }
+
+        Player newOwnerPlayer = newOwner.getOnlinePlayer();
+        if (!newOwnerPlayer.hasPermission("svplots.own.unlimited")) {
+            List<SurvivalPlot> current = plugin.getPlotManager().getOwnedPlots(newOwnerPlayer);
+            int max = 0;
+            for (PermissionAttachmentInfo perm : newOwnerPlayer.getEffectivePermissions()) {
+                if (perm.getPermission().startsWith("svplots.own.") && perm.getValue()) {
+                    try {
+                        int amount = Integer.parseInt(perm.getPermission().substring(perm.getPermission().lastIndexOf(".") + 1));
+                        if (amount > max) {
+                            max = amount;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            if (current.size() >= max) {
+                player.sendMessage(color("&cPlayer cannot own any more plots!"));
+                return;
+            }
         }
 
         if (!new PlotTransferEvent(plot, newOwner).callEvent()) {
