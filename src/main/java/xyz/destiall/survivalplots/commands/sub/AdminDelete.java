@@ -4,7 +4,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.commands.SubCommand;
-import xyz.destiall.survivalplots.events.PlotDeleteEvent;
 import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 

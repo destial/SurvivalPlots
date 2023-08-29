@@ -10,6 +10,7 @@ import xyz.destiall.survivalplots.hooks.PartiesHook;
 import xyz.destiall.survivalplots.hooks.PlaceholderAPIHook;
 import xyz.destiall.survivalplots.hooks.ShopkeepersHook;
 import xyz.destiall.survivalplots.hooks.WorldGuardHook;
+import xyz.destiall.survivalplots.listeners.PaperListener;
 import xyz.destiall.survivalplots.listeners.PlotBlocksListener;
 import xyz.destiall.survivalplots.listeners.PlotInventoryListener;
 import xyz.destiall.survivalplots.listeners.PlotPlayerListener;
@@ -40,6 +41,11 @@ public final class SurvivalPlotsPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlotBlocksListener(this), this);
         getServer().getPluginManager().registerEvents(new PlotInventoryListener(this), this);
         getServer().getPluginManager().registerEvents(new PlotPlayerListener(this), this);
+
+        try {
+            Class.forName("com.destroystokyo.paper.utils.PaperPluginLogger");
+            getServer().getPluginManager().registerEvents(new PaperListener(this), this);
+        } catch (Exception ignored) {}
 
         getCommand("svplots").setExecutor(new PlotCommand(this));
 

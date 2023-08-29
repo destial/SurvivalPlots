@@ -24,6 +24,7 @@ public final class Scheduler {
         try {
             Class.forName("io.papermc.paper.threadedregions.scheduler.RegionScheduler");
             folia = true;
+            plugin.getLogger().info("Detected Folia implementation! Using Folia's regional scheduler...");
         } catch (ClassNotFoundException ignored) {}
     }
 
@@ -282,7 +283,7 @@ public final class Scheduler {
     }
 
     /**
-     * Schedules a repeated task to be executed on the global region scheduler.
+     * Schedules a delayed task to be executed on the global region scheduler.
      * @param runnable The task to execute
      * @param delay The delay in ticks from task initialization
      * @return The scheduled task wrapper for Bukkit or Folia
@@ -302,7 +303,7 @@ public final class Scheduler {
     }
 
     /**
-     * Schedules an async repeated task to be executed on the global region scheduler.
+     * Schedules an async delayed task to be executed on the global region scheduler.
      * @param runnable The task to execute
      * @param delay The delay in ticks from task initialization
      * @return The scheduled task wrapper for Bukkit or Folia
@@ -322,7 +323,7 @@ public final class Scheduler {
     }
 
     /**
-     * Schedules a repeated task to be executed on the region which owns the location.
+     * Schedules a delayed task to be executed on the region which owns the location.
      * @param runnable The task to execute
      * @param location The region to execute the task in
      * @param delay The delay in ticks from task initialization
@@ -343,7 +344,7 @@ public final class Scheduler {
     }
 
     /**
-     * Schedules an async repeated task to be executed on the region which owns the location.
+     * Schedules an async delayed task to be executed on the region which owns the location.
      * @param runnable The task to execute
      * @param location The region to execute the task in
      * @param delay The delay in ticks from task initialization

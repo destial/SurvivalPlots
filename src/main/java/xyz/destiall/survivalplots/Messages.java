@@ -95,6 +95,7 @@ public class Messages {
         NO_PERMS_ON_PLOT("&cYou do not own this plot!"),
         NOT_STANDING_ON_PLOT("&cYou are not standing on a plot!"),
         NO_AVAILABLE_PLOTS("&cThere are no available plots!"),
+        PLAYER_NOT_OWNED_BEFORE("&cPlayer has not owned this plot before!"),
 
         ;
         private final String defaultMessage;

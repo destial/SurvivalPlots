@@ -1,6 +1,5 @@
 package xyz.destiall.survivalplots.listeners;
 
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -40,7 +39,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
-import xyz.destiall.survivalplots.hooks.GriefPreventionHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.player.PlotPlayerManager;
 import xyz.destiall.survivalplots.plot.PlotFlags;

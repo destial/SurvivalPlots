@@ -3,8 +3,10 @@ package xyz.destiall.survivalplots.hooks;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.nisovin.shopkeepers.api.shopkeeper.Shopkeeper;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
+import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 public class ShopkeepersHook {
     private static boolean enabled = false;
@@ -24,14 +26,16 @@ public class ShopkeepersHook {
         if (!enabled)
             return;
 
-        if (!ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(entity))
-            return;
-
         Shopkeeper shopkeeper = ShopkeepersAPI.getShopkeeperRegistry().getShopkeeperByEntity(entity);
-        if (shopkeeper == null)
+        if (shopkeeper == null) {
+            //if (ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(entity)) {
+                for (Shopkeeper sk : ShopkeepersAPI.getShopkeeperRegistry().getShopkeepersAtLocation(entity.getLocation())) {
+                    sk.delete();
+                }
+            //}
             return;
+        }
 
         shopkeeper.delete();
     }
-
 }

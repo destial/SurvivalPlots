@@ -16,11 +16,11 @@ public class EconomyManager {
     private final int plotCost;
     private final int plotReset;
     private Material economyMaterial;
-    private Economy vault;
+    private boolean vault;
 
     public Bank newBank(Player player) {
-        if (economyMaterial == null && vault != null) {
-            return new VaultBank(this, vault, player);
+        if (economyMaterial == null && vault) {
+            return new VaultBank(this, plugin.getServer().getServicesManager().getRegistration(Economy.class).getProvider(), player);
         }
 
         return new Bank(this, player);
@@ -39,7 +39,7 @@ public class EconomyManager {
                 plugin.info("Vault detected!");
                 RegisteredServiceProvider<Economy> rsp = plugin.getServer().getServicesManager().getRegistration(Economy.class);
                 if (rsp != null) {
-                    vault = rsp.getProvider();
+                    vault = true;
                 }
                 plugin.warning("Vault does not have an economy registered! Defaulting back...");
             }
