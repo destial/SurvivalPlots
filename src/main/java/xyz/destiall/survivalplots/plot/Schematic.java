@@ -21,6 +21,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockState;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
@@ -216,11 +217,9 @@ public class Schematic {
                                     int relativeX = currentX - minX;
                                     BlockVector3 point = BlockVector3.at(currentX, currentY, currentZ);
                                     BaseBlock block = aabb.getWorld().getFullBlock(point);
+                                    BlockState state = block.toImmutableState();
                                     if (block.getNbtData() != null) {
-                                        Map<String, Tag> values = new HashMap<>();
-                                        for (Map.Entry<String, Tag> entry : block.getNbtData().getValue().entrySet()) {
-                                            values.put(entry.getKey(), entry.getValue());
-                                        }
+                                        Map<String, Tag> values = new HashMap<>(block.getNbtData().getValue());
 
                                         // Positions are kept in NBT, we don't want that.
                                         values.remove("x");
@@ -237,7 +236,7 @@ public class Schematic {
 
                                         tileEntities.add(new CompoundTag(values));
                                     }
-                                    String blockKey = block.toImmutableState().getAsString();
+                                    String blockKey = state.getAsString();
                                     int blockId;
                                     if (palette.containsKey(blockKey)) {
                                         blockId = palette.get(blockKey);
@@ -293,6 +292,7 @@ public class Schematic {
     public CompletableFuture<Clipboard> getAsyncClipboard() {
         if (board == null)
             return CompletableFuture.completedFuture(clipboard);
+
         return board;
     }
 

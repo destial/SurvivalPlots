@@ -71,7 +71,7 @@ public class Messages {
             message = message.replace("{plotmembers}", String.join(", ", plot.getMembers()));
             message = message.replace("{plotbanned}", String.join(", ", plot.getBanned()));
             message = message.replace("{plotdescription}", plot.getDescription());
-            message = message.replace("{plotexpiry}", SurvivalPlotsPlugin.relativeDate(plot.getExpiryDate()));
+            message = message.replace("{plotexpiry}", PlotUtils.relativeDate(plot.getExpiryDate()));
         }
 
         return message;
@@ -96,6 +96,7 @@ public class Messages {
         NOT_STANDING_ON_PLOT("&cYou are not standing on a plot!"),
         NO_AVAILABLE_PLOTS("&cThere are no available plots!"),
         PLAYER_NOT_OWNED_BEFORE("&cPlayer has not owned this plot before!"),
+        PLAYER_NOT_SAME("&cCurrent plot owner is not the same as restoring player!"),
 
         ;
         private final String defaultMessage;

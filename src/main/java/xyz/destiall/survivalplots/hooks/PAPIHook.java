@@ -5,6 +5,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.destiall.survivalplots.PlotUtils;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
@@ -69,7 +70,7 @@ class PAPIHook extends PlaceholderExpansion {
             case "banned":
                 return plot.getBanned().size() != 0 ? String.join(", ", plot.getBanned()) : "N/A";
             case "expiry":
-                return plot.getExpiryDate() != null ? SurvivalPlotsPlugin.relativeDate(plot.getExpiryDate()) : "N/A";
+                return plot.getExpiryDate() != null ? PlotUtils.relativeDate(plot.getExpiryDate()) : "N/A";
         }
 
         return "null";

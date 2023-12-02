@@ -18,6 +18,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import xyz.destiall.survivalplots.Messages;
+import xyz.destiall.survivalplots.PlotUtils;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.events.PlotExpireEvent;
 import xyz.destiall.survivalplots.events.PlotLoadEvent;
@@ -79,17 +80,18 @@ public class SurvivalPlot {
         description = section.getString("description", "N/A");
 
         if (!owner.equalsIgnoreCase("N/A")) {
-            if (section.getLong("expiry") == 0) {
+            long exp = section.getLong("expiry");
+            if (exp == 0) {
                 updateExpiry();
             } else {
-                expiryDate = new Date(section.getLong("expiry"));
+                expiryDate = new Date(exp);
                 scheduleExpiry();
             }
         }
 
         if (section.contains("home")) {
             try {
-                home = section.getLocation("home");
+                setHome(section.getLocation("home"));
             } catch (Exception e) {
                 SurvivalPlotsPlugin.getInst().warning(worldName + " is not loaded!");
             }
@@ -152,8 +154,10 @@ public class SurvivalPlot {
     }
 
     public void disableExpiryTimer() {
-        if (expiry != null)
+        if (expiry != null) {
             expiry.cancel();
+            expiry.purge();
+        }
         expiry = null;
     }
 
@@ -207,6 +211,7 @@ public class SurvivalPlot {
     public boolean addFlag(PlotFlags flag) {
         if (flags.contains(flag))
             return false;
+
         flags.add(flag);
         SurvivalPlotsPlugin.getInst().getPlotManager().update();
         return true;
@@ -319,14 +324,14 @@ public class SurvivalPlot {
 
     public void updateExpiry() {
         if (owner.equalsIgnoreCase("N/A")) {
-            expiryDate = null;
+            setExpiryDate(null);
             if (expiry != null)
                 expiry.cancel();
             expiry = null;
             return;
         }
-        Duration expiryLength = SurvivalPlotsPlugin.getDuration(SurvivalPlotsPlugin.getInst().getConfig().getString("plot-expiry", "30d"));
-        expiryDate = Date.from(Instant.now().plus(expiryLength));
+        Duration expiryLength = PlotUtils.getDuration(SurvivalPlotsPlugin.getInst().getConfig().getString("plot-expiry", "30d"));
+        setExpiryDate(Date.from(Instant.now().plus(expiryLength)));
         scheduleExpiry();
     }
 
@@ -334,7 +339,7 @@ public class SurvivalPlot {
         this.owner = owner;
 
         if (owner.equalsIgnoreCase("N/A")) {
-            description = "N/A";
+            setDescription("N/A");
         }
         updateExpiry();
         SurvivalPlotsPlugin.getInst().getPlotManager().update();
@@ -374,7 +379,7 @@ public class SurvivalPlot {
     public Location getHome() {
         boolean tried = false;
         if (home == null) {
-            home = new Location(getWorld(), bounds.getCenterX(), bounds.getMaxY(), bounds.getMaxZ() + 2);
+            setHome(new Location(getWorld(), bounds.getCenterX(), bounds.getMaxY(), bounds.getMaxZ() + 2));
             if (!home.getChunk().isLoaded()) {
                 home.getChunk().load();
             }
@@ -389,7 +394,7 @@ public class SurvivalPlot {
             tried = true;
         }
         if (!tried && home.getBlock().getType() != Material.AIR) {
-            home = null;
+            setHome(null);
             return getHome();
         }
         return home;

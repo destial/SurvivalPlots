@@ -15,13 +15,18 @@ import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class WorldEditHook {
     private WorldEditHook() {}
 
     public static BoundingBox getSelection(Player player) {
         try {
-            Region selection = WorldEditPlugin.getPlugin(WorldEditPlugin.class).getSession(player).getSelection();
+            WorldEditPlugin pl = WorldEditPlugin.getPlugin(WorldEditPlugin.class);
+            Region selection = pl.getSession(player).getSelection();
             return BoundingBox.of(adapt(selection.getMinimumPoint()), adapt(selection.getMaximumPoint()));
         } catch (Exception ignored) {}
         return null;
@@ -69,6 +74,23 @@ public class WorldEditHook {
                 e.printStackTrace();
             }
         });
+    }
+
+    public static List<String> getBackupsList(SurvivalPlot plot) {
+        File plotsBackup = new File(SurvivalPlotsPlugin.getInst().getDataFolder(), "backups" + File.separator + plot.getId() + File.separator);
+        if (!plotsBackup.exists()) {
+            try {
+                plotsBackup.mkdirs();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        File[] files = plotsBackup.listFiles();
+        if (files == null)
+            return Collections.emptyList();
+
+        return Stream.of(files).map(f -> f.getName().replace(".schem", "")).collect(Collectors.toList());
     }
 
     public static Schematic loadPlot(SurvivalPlot plot, String name) {

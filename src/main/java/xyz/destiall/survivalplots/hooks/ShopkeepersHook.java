@@ -3,10 +3,8 @@ package xyz.destiall.survivalplots.hooks;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.nisovin.shopkeepers.api.shopkeeper.Shopkeeper;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
-import xyz.destiall.survivalplots.plot.SurvivalPlot;
 
 public class ShopkeepersHook {
     private static boolean enabled = false;

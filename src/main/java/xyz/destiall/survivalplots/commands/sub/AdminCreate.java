@@ -36,8 +36,10 @@ public class AdminCreate extends SubCommand {
 
         SurvivalPlot plot = plugin.getPlotManager().createPlot(player.getWorld(), selection, fullHeight);
 
-        if (plot == null)
+        if (plot == null) {
+            player.sendMessage(color("&4Something stopped plot creation! If this was wrong, check with an administrator!"));
             return;
+        }
 
         player.sendMessage(color("&aCreated plot " + plot.getId() + " in " + plot.getWorld().getName()));
         if (setHome) {

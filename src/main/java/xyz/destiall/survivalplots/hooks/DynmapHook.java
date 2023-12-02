@@ -8,6 +8,7 @@ import org.dynmap.DynmapAPI;
 import org.dynmap.markers.AreaMarker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
+import xyz.destiall.survivalplots.PlotUtils;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.plot.PlotFlags;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
@@ -90,7 +91,7 @@ public class DynmapHook {
         plotMarker.setHideByDefault(config.getBoolean("hide-by-default"));
         updatePeriod = config.getInt("update-period", updatePeriod);
         areaStyle = new AreaStyle(config, "area-style");
-        expiryDate = SurvivalPlotsPlugin.getDuration(config.getString("expiry-date", "10d"));
+        expiryDate = PlotUtils.getDuration(config.getString("expiry-date", "10d"));
 
         startUpdater();
     }
@@ -167,7 +168,7 @@ public class DynmapHook {
         v = v.replace("%members%", plot.getMembers().size() > 0 ? String.join(", ", plot.getMembers()) : "None");
         v = v.replace("%banned%", plot.getBanned().size() > 0 ? String.join(", ", plot.getBanned()) : "None");
         v = v.replace("%flags%", plot.getFlags().size() > 0 ? plot.getFlags().stream().map(PlotFlags::getName).collect(Collectors.joining(", ")) : "None");
-        v = v.replace("%expiry%", plot.getExpiryDate() != null ? SurvivalPlotsPlugin.relativeDate(plot.getExpiryDate()) : "N/A");
+        v = v.replace("%expiry%", plot.getExpiryDate() != null ? PlotUtils.relativeDate(plot.getExpiryDate()) : "N/A");
         return v;
     }
 
@@ -224,7 +225,7 @@ public class DynmapHook {
                 return (strokecolor >= 0 ? strokecolor : 0xFF0000);
             }
 
-            Duration relative = SurvivalPlotsPlugin.relativeDuration(plot.getExpiryDate());
+            Duration relative = PlotUtils.relativeDuration(plot.getExpiryDate());
             if (relative.minus(expiryDate).isNegative()) {
                 return (expirystrokecolor >= 0 ? expirystrokecolor : 0xFF0000);
             }
@@ -244,7 +245,7 @@ public class DynmapHook {
                 return (fillcolor >= 0 ? fillcolor : 0xFF0000);
             }
 
-            Duration relative = SurvivalPlotsPlugin.relativeDuration(plot.getExpiryDate());
+            Duration relative = PlotUtils.relativeDuration(plot.getExpiryDate());
             if (relative.minus(expiryDate).isNegative()) {
                 return (expiryfillcolor >= 0 ? expiryfillcolor : 0xFF0000);
             }

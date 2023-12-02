@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
-import xyz.destiall.survivalplots.events.PlotResetEvent;
 import xyz.destiall.survivalplots.events.PlotRestoreEvent;
 import xyz.destiall.survivalplots.hooks.DynmapHook;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
@@ -17,6 +16,9 @@ import xyz.destiall.survivalplots.player.PlotPlayer;
 import xyz.destiall.survivalplots.plot.PlotManager;
 import xyz.destiall.survivalplots.plot.Schematic;
 import xyz.destiall.survivalplots.plot.SurvivalPlot;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AdminRestore extends SubCommand {
     public AdminRestore() {
@@ -46,7 +48,7 @@ public class AdminRestore extends SubCommand {
         String playerName = args[0];
         String currentOwner = plot.getRawOwner();
         if (!playerName.equalsIgnoreCase(currentOwner)) {
-            sender.sendMessage(Messages.Key.PLAYER_NOT_OWNED_BEFORE.get(player, plot));
+            sender.sendMessage(Messages.Key.PLAYER_NOT_SAME.get(player, plot));
             return;
         }
 
@@ -63,6 +65,8 @@ public class AdminRestore extends SubCommand {
                 } else {
                     player.sendMessage(color("&cUnable to restore plot " + plot.getId()));
                 }
+            } else {
+                sender.sendMessage(Messages.Key.PLAYER_NOT_OWNED_BEFORE.get(player, plot));
             }
 
             DynmapHook.updatePlot(plot);
@@ -73,5 +77,23 @@ public class AdminRestore extends SubCommand {
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/plot confirm"));
         player.sendMessage(component);
         player.sendMessage(color("&cWARNING!! Restoring will remove everything in this current state!"));
+    }
+
+    @Override
+    public List<String> tab(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player) || args.length == 0)
+            return super.tab(sender, args);
+
+        Player player = (Player) sender;
+        PlotManager pm = plugin.getPlotManager();
+        SurvivalPlot plot = pm.getPlotAt(player.getLocation());
+
+        if (plot == null)
+            return super.tab(sender, args);
+
+        List<String> allOwners = WorldEditHook.getBackupsList(plot);
+        return allOwners.stream()
+                .filter(p -> p.toLowerCase().startsWith(args[0].toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

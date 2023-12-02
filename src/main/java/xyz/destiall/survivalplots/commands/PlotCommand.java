@@ -110,7 +110,7 @@ public class PlotCommand implements CommandExecutor, TabExecutor {
         }
 
         SubCommand sub = subCommands.get(args[0].toLowerCase());
-        if (sub == null)
+        if (sub == null || !sender.hasPermission(sub.getPermission()))
             return Collections.emptyList();
 
         return sub.tab(sender, Arrays.copyOfRange(args, 1, args.length));

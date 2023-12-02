@@ -10,7 +10,6 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import xyz.destiall.survivalplots.Messages;
 import xyz.destiall.survivalplots.SurvivalPlotsPlugin;
 import xyz.destiall.survivalplots.commands.SubCommand;
-import xyz.destiall.survivalplots.events.PlotSellEvent;
 import xyz.destiall.survivalplots.events.PlotTransferEvent;
 import xyz.destiall.survivalplots.hooks.WorldEditHook;
 import xyz.destiall.survivalplots.player.PlotPlayer;
